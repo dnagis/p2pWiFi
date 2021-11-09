@@ -1,0 +1,169 @@
+scp /initrd/mnt/dev_save/packages/LOG_p2p ks:/root/
+
+Automatiser wpa_supplicant pour acceptation automatique connect coming from Android, grâce à libwpa_client.so
+
+###Sticky
+#compil
+gcc libwpa_test.c -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils -lwpa_client
+
+
+#081121
+X-compil
+arm-linux-gnueabihf-gcc libwpa_test.c \
+> -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils \
+> -lwpa_client -o libwpa_test
+
+#071121
+arriver à conditionner sur la string:
+<3>P2P-GO-NEG-REQUEST d6:c9:4b:81:c2:73 dev_passwd_id=4 go_intent=7b:81:c2:73 bssid=d6:c9:4b:81:c2:73 unknown-networkad' config_methods=0x188 dev_capab=0x25 group_capab=0x0 vendor_elems=1 new=1
+
+https://www.tutorialspoint.com/c_standard_library/c_function_strstr.htm
+
+if (strstr(buf_m, "P2P-GO-NEG-REQUEST d6:c9:4b:81:c2:73"))printf("match\n");
+
+len = sizeof(buf) - 1; //il faut réassigner une valeur qui puisse contenir la chaine de caractères
+ avant chaque utilisation (wpa_ctrl_request, wpa_ctrl_recv), sinon segfault (si jamais initialisé) ou reste à la première valeur
+
+
+
+#051121
+Listen les events P2P
+Des exemples de code utilisant la fonction wpa_ctrl_recv(), idéalement avec un loop simple
+
+https://source.codeaurora.org/external/gigabyte/ag-gb-dsds-7227/plain/hardware/libhardware_legacy/wifi/wifi.c
+
+
+https://forum.openwrt.org/t/how-do-i-get-a-notification-when-a-station-is-associated/102904
+--> simple.
+
+j'essaie avec searchstring google: "wpa_ctrl_recv loop"
+https://hostap.epitest.fi/wpa_supplicant/wpa_supplicant-devel-04.pdf --> parle de eloop, je l'ai déjà vu, mais si pars en eloop ça a l'air compliqué
+https://stackoverflow.com/questions/47581814/get-signal-level-of-the-connected-wifi-network
+--> il ne donne pas son code mais cette phrase décrit ce que je veux:
+"On the API level my code is straightforward. I have two threads for that, both call wpa_ctrl_open, 
+the command thread calls wpa_ctrl_request, the event thread has an endless loop that calls poll passing wpa_ctrl_get_fd() descriptor and POLLIN event mask, 
+followed by wpa_ctrl_pending and wpa_ctrl_recv."
+
+j'essaie avec searchstring google: "wpa_ctrl_recv eloop"
+https://web.mit.edu/freebsd/head/contrib/wpa/hostapd/hostapd_cli.c
+utilise include "utils/eloop.h" --> compliqué
+
+
+
+#041121
+Premiere commande perso passée en C via wpa_ctrl_request()
+à partir de wpa_supplicant/libwpa_test.c
+j'ajoute aux bons endroits:
+	char *buf;	
+	size_t len = 1000;
+	
+	
+	if (wpa_ctrl_attach(ctrl) == 0){
+		wpa_ctrl_request(ctrl, "P2P_LISTEN 30", 13, buf, &len, NULL);
+		printf("reponse: %s \n",buf);
+		...
+ 
+
+#221021
+cross compil
+je cross compilais wpa_supplicant avec CC=arm-linux-gnueabihf-gcc make
+j'essaie plus élégament, depuis la racine avec changement de path avec:
+
+export PATH=$PATH:/initrd/mnt/dev_save/rpi/cross/bin/
+CC=arm-linux-gnueabihf-gcc make -C wpa_supplicant
+
+du coup pour x compiler la librairie libwpa_client.so:
+CC=arm-linux-gnueabihf-gcc make -C wpa_supplicant libwpa_client.so
+mais attention après au runtime avec le hello world (wpa_supplicant/libwpa_test.c) j'ai
+/libwpa_test: symbol lookup error: ./libwpa_test: undefined symbol: wpa_ctrl_open
+
+effectivement (sur le NUC cause nm ne fonctionne pas sur le RPi):
+nm wpa_supplicant/libwpa_client.so | grep open #ne montre pas wpa_ctrl_open
+
+je passe -DCONFIG_CTRL_IFACE -DCONFIG_CTRL_IFACE_UNIX au compilateur en modifiant la target de la Makefile (li 1936
+qui commence par libwpa_client.so, deux lignes en dessous la ligne CC): ajouter -DCONFIG_CTRL_IFACE -DCONFIG_CTRL_IFACE_UNIX
+
+
+maintenant cross compiler le hello world pour utiliser cette librairie?
+pour compilation pour que linker puis la trouver je la copie dans /initrd/mnt/dev_save/rpi/cross_zero/arm-linux-gnueabihf/lib
+
+
+arm-linux-gnueabihf-gcc wpa_supplicant/libwpa_test.c \
+-I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils \
+-lwpa_client -o libwpa_test
+
+
+
+
+#211021 ##### libwpa_client.so
+libwpa_client.so buildée avec 
+CC=gcc make -C wpa_supplicant libwpa_client.so
+puis chmod a+x, cp /usr/lib64 et ldconfig
+j'arrive à builder le hello world (non modifié) de:
+https://stackoverflow.com/questions/38215480/getting-started-with-wpa-supplicant-using-c
+avec:
+gcc main.c -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/common -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils -lwpa_client
+
+je trouve un hello world pour l'utilisation de la librairie, dans les sources wpa_supplicant: wpa_supplicant/libwpa_test.c
+
+gcc libwpa_test.c -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils -lwpa_client
+
+ctrl = wpa_ctrl_open("/var/run/wpa_supplicant/wlan0");
+	ou
+ctrl = wpa_ctrl_open("/var/run/wpa_supplicant/p2p-dev-wlan0");
+
+
+
+#J2 191021 LGM
+Début lecture sources
+recherche pistes
+wpa_supplicant/notify.h
+wpa_supplicant/ctrl_iface_unix.c 
+syslog?
+
+<3>CTRL-EVENT-SCAN-RESULTS 
+<3>P2P-DEVICE-FOUND d6:c9:4b:81:c2:73 p2p_dev_addr=d6:c9:4b:81:c2:73 pri_dev_type=10-0050F204-5 name='Moto Z3 Play_8fad' config_methods=0x188 dev_capab=0x25 group_capab=0x0 vendor_elems=1 new=1
+<3>P2P-INVITATION-RECEIVED sa=d6:c9:4b:81:c2:73 go_dev_addr=d6:c9:4b:81:c2:73 bssid=d6:c9:4b:81:c2:73 unknown-network
+<3>P2P-GO-NEG-REQUEST d6:c9:4b:81:c2:73 dev_passwd_id=4 go_intent=7
+<3>P2P-GO-NEG-REQUEST d6:c9:4b:81:c2:73 dev_passwd_id=4 go_intent=7
+
+define P2P_EVENT_INVITATION_RECEIVED "P2P-INVITATION-RECEIVED "
+src/common/wpa_ctrl.h
+src/common/wpa_ctrl.c
+--> est ce que qqun a déjà fait du code qui réagit à un des events de ce .h (mais pas des events p2p c'est trop confidentiel)
+
+/** Authentication completed successfully and data connection enabled */
+#define WPA_EVENT_CONNECTED "CTRL-EVENT-CONNECTED "
+/** Disconnected, data connection is not available */
+#define WPA_EVENT_DISCONNECTED "CTRL-EVENT-DISCONNECTED "
+
+***https://w1.fi/wpa_supplicant/devel/ctrl_iface_page.html***
+"wpa_supplicant implements a control interface that can be used by external programs to control the operations of the wpa_supplicant daemon and to get status information and event notifications. "
+  Piste LGM ++++++++
+
+
+
+#J1 181021 MTP 
+Malgré les exemples dans le code source wpa_supplicant: pas envie de me lancer dans dbus
+
+Si dans un script avec wpa_cli je lance un connect, il accepte combien de temps???
+
+set le listen avec wpa_cli
+
+p2p_ext_listen 200 2000
+
+
+p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0
+
+set persistent_reconnect 1
+
+
+OK 2 notions importantes:
+Comme d'hab, quitter l'appli Android puis redémarrer peut aider à re-trouver un peer
+quand j'ai [PERSISTENT] à la connexion, set persistent_reconnect  1 a l'air de faciliter l'acceptation de connexion
+
+si je tape dans les sources directement à l'endroit où acceptation d'un groupe persitant avec
+connexion préétablie: il y a obligatoirement une struct avec le peer.
+
+
+

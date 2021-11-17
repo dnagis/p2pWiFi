@@ -1,10 +1,18 @@
-scp /initrd/mnt/dev_save/packages/LOG_p2p ks:/root/
+P2P-wifi = WiFi direct côté wpa_supplicant
 
-Automatiser wpa_supplicant pour acceptation automatique connect coming from Android, grâce à libwpa_client.so
 
-###Sticky
+linux wpa_supplicant connect <-> Android
+librairie wpa_supplicant: libwpa_client.so
+
+########Sticky
 #compil
 gcc libwpa_test.c -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils -lwpa_client
+
+#accepter une demande de connexion venant d'Android
+p2p_listen
+p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0
+
+
 
 
 #081121

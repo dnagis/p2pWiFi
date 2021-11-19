@@ -9,8 +9,8 @@
  * 
  * Basé sur wpa_supplicant/libwpa_test.c 
  * 
- * 
- * gcc libwpa_connect.c -I...path_to.../wpa_supplicant-2.9/src -I...path_to.../wpa_supplicant-2.9/src/utils -lwpa_client
+ * INCLUDES="-I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils"
+ * gcc libwpa_connect.c $INCLUDES -lwpa_client
  * 
  * X-compil:
  * export PATH=$PATH:/initrd/mnt/dev_save/rpi/cross/bin/

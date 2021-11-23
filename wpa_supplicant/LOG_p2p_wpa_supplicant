@@ -10,9 +10,35 @@ gcc libwpa_test.c -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/init
 
 #accepter une demande de connexion venant d'Android
 p2p_listen
+p2p_connect 1a:f0:e4:11:ef:ba pbc go_intent=0 #Redmi note 4
 p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0
 
 
+#231121
+déconnexion
+<3>P2P-GO-NEG-SUCCESS role=client freq=2412 ht40=0 peer_dev=1a:f0:e4:11:ef:ba peer_iface=1a:f0:e4:11:ef:ba wps_method=PBC
+<3>CTRL-EVENT-SCAN-RESULTS 
+<3>P2P-GROUP-FORMATION-SUCCESS 
+<3>P2P-GROUP-STARTED p2p-wlan0-10 client ssid="DIRECT-Ag-Android_b010" freq=2412 psk=bf9c67ffef16957b8c209aac32bc300802fe0c29daf62b738609aab9ac701a71 go_dev_addr=1a:f0:e4:11:ef:ba [PERSISTENT]
+<3>P2P-GROUP-REMOVED p2p-wlan0-10 client reason=IDLE
+<3>P2P-DEVICE-LOST p2p_dev_addr=1a:f0:e4:11:ef:ba
+
+sans p2p_listen je ne vois rien, et le reconnect ne marche pas.
+dès que je p2p_listen je reçois des
+<3>P2P-INVITATION-RECEIVED sa=1a:f0:e4:11:ef:ba persistent=19
+...
+<3>P2P-DEVICE-LOST p2p_dev_addr=1a:f0:e4:11:ef:ba
+et impossible de répondre à l'invitation
+j'arrive à avoir reconnexion automatique avec:
+set persistent_reconnect 1
+
+
+https://thangamaniarun.wordpress.com/category/p2p-go/
+https://coderedirect.com/questions/661242/wifi-direct-connection-disconnects-automatically-after-a-few-seconds-in-raspberr
+
+Pour restaurer le resolv une fois connexion effectuée j'y arrive avec:
+route del -net 0.0.0.0 gw 192.168.49.1 netmask 0.0.0.0 dev p2p-wlan0-29
+/etc/resolv.conf --> une seule ligne --> nameserver 192.168.1.1
 
 
 #081121

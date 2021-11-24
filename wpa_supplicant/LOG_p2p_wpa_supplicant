@@ -28,15 +28,13 @@ $2 ==> P2P-GROUP-STARTED ou P2P-GROUP-REMOVED
 
 
 action script:
+inspiration dans: wpa_supplicant/examples/p2p-action.sh 
 #!/bin/bash
-echo "debut action script" $1 $2
+echo "debut action script" $1 $2 $3 $4
 if [ "$2" = "P2P-GROUP-STARTED" ]; then
-	IFNAME=`basename /var/run/wpa_supplicant/p2p-wlan0-*`
-	echo "action script wpa" $1 $2 $IFNAME
-	#logger "wpa action script" $1 $2 $IFNAME
-	sleep 1
-	udhcpc -i $IFNAME
-fi		
+	echo "RX P2P-GROUP-STARTED " $1 $2 $3 $4
+	udhcpc -i $3 #GIFNAME Group Interface Name
+fi	
 
 
 

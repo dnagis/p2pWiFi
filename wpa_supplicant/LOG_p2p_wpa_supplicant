@@ -10,7 +10,7 @@ gcc libwpa_test.c -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/init
 #accepter une demande de connexion venant d'un de mes devices Android
 p2p_listen
 p2p_connect 1a:f0:e4:11:ef:ba pbc go_intent=0 #Redmi note 4
-p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0
+p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0 #Moto Z3 play
 
 #restaurer le http www après un udhcpc -i p2p-wlan0-N
 route del -net 0.0.0.0 gw 192.168.49.1 netmask 0.0.0.0 dev p2p-wlan0-
@@ -34,9 +34,9 @@ if [ "$2" = "P2P-GROUP-STARTED" ]; then
 	IFNAME=`basename /var/run/wpa_supplicant/p2p-wlan0-*`
 	echo "action script wpa" $1 $2 $IFNAME
 	#logger "wpa action script" $1 $2 $IFNAME
-	sleep 4
+	sleep 1
 	udhcpc -i $IFNAME
-fi	
+fi		
 
 
 

@@ -1,6 +1,5 @@
 P2P-wifi = WiFi direct côté wpa_supplicant
 
-
 linux wpa_supplicant connect <-> Android
 librairie wpa_supplicant: libwpa_client.so
 
@@ -8,14 +7,41 @@ librairie wpa_supplicant: libwpa_client.so
 #compil
 gcc libwpa_test.c -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils -lwpa_client
 
-#accepter une demande de connexion venant d'Android
+#accepter une demande de connexion venant d'un de mes devices Android
 p2p_listen
 p2p_connect 1a:f0:e4:11:ef:ba pbc go_intent=0 #Redmi note 4
 p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0
 
+#restaurer le http www après un udhcpc -i p2p-wlan0-N
+route del -net 0.0.0.0 gw 192.168.49.1 netmask 0.0.0.0 dev p2p-wlan0-
+echo nameserver 192.168.1.1 > /etc/resolv.conf
+
+
+
+
+#241121
+J'arrive à faire fonctionner l'action script (attention je n'ai pas réussi à faire du logger avec)
+wpa_cli -iwlan0 -a /root/action_wpa.sh #et dans une autre console wpa_cli -iwlan0 disconnect puis reconnect
+wpa_cli -a /root/action_wpa.sh
+$1 ==> p2p-dev-wlan0
+$2 ==> P2P-GROUP-STARTED ou P2P-GROUP-REMOVED
+
+
+action script:
+#!/bin/bash
+echo "debut action script" $1 $2
+if [ "$2" = "P2P-GROUP-STARTED" ]; then
+	IFNAME=`basename /var/run/wpa_supplicant/p2p-wlan0-*`
+	echo "action script wpa" $1 $2 $IFNAME
+	#logger "wpa action script" $1 $2 $IFNAME
+	sleep 4
+	udhcpc -i $IFNAME
+fi	
+
+
 
 #231121
-déconnexion
+déconnexions intempestives, ressemble à un timeout
 <3>P2P-GO-NEG-SUCCESS role=client freq=2412 ht40=0 peer_dev=1a:f0:e4:11:ef:ba peer_iface=1a:f0:e4:11:ef:ba wps_method=PBC
 <3>CTRL-EVENT-SCAN-RESULTS 
 <3>P2P-GROUP-FORMATION-SUCCESS 

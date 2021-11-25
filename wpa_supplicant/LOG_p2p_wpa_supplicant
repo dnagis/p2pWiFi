@@ -1,4 +1,4 @@
-P2P-wifi = WiFi direct côté wpa_supplicant
+P2P-wifi aka WiFi Direct
 
 linux wpa_supplicant connect <-> Android
 librairie wpa_supplicant: libwpa_client.so
@@ -9,18 +9,32 @@ gcc libwpa_test.c -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/init
 
 #accepter une demande de connexion venant d'un de mes devices Android
 p2p_listen
-p2p_connect 1a:f0:e4:11:ef:ba pbc go_intent=0 #Redmi note 4
-p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0 #Moto Z3 play
+p2p_connect 1a:f0:e4:11:ef:ba pbc go_intent=0 	#Redmi note 4
+p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0 	#Moto Z3 play
+p2p_connect 7e:42:6e:7f:a3:da pbc go_intent=0 	#Poco M3
+p2p_connect e2:c3:77:fd:59:5c pbc 				#Galaxy Tab S5e
 
-#voir si une p2p-wlan0-N est bien là
-ip a
+98:af:65:ce:18:6f #NUC
 
-#voir la gateway par défaut (utile pour rebasculer en mode http web classique sur le NUC)
-route -n
+
+ip a #voir si une p2p-wlan0-N est bien là
+route -n #voir la gateway par défaut (utile pour rebasculer en mode http web classique sur le NUC)
 
 #restaurer le http www après un udhcpc -i p2p-wlan0-N
-route del -net 0.0.0.0 gw 192.168.49.1 netmask 0.0.0.0 dev p2p-wlan0-
+route del -net 0.0.0.0 gw 192.168.49.1 netmask 0.0.0.0 dev p2p-wlan0-N #mais si tu disconnect normalement ça disparait
 echo nameserver 192.168.1.1 > /etc/resolv.conf
+
+
+#251121
+je modifie /usr/share/udhcpc/default.script pour ne pas avoir à restaurer /etc/resolv.conf à chaque fois
+		##/etc/resolv.conf que si ce n'est pas du wifi direct P2P
+		pattern="^p2p-wlan0-"
+		if ! [[ $interface =~ $pattern ]];then
+			echo "Recreating $RESOLV_CONF"
+				...
+			mv "$tmpfile" "$realconf"
+		fi
+
 
 
 

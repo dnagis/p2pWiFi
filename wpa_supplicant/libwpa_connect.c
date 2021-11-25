@@ -34,6 +34,8 @@ bool chkmacaddr(char *addr)
 	char *known_addrs[] = {
 	"1a:f0:e4:11:ef:ba", //redmi note 4
 	"d6:c9:4b:81:c2:73", //moto Z3 play
+	"7e:42:6e:7f:a3:da", //Poco M3
+	"e2:c3:77:fd:59:5c", //Galaxy Tab S5e
 	"ENDOFARRAY"};
 	int i=0;
 		

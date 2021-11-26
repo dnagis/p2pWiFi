@@ -3,7 +3,10 @@ P2P-wifi aka WiFi Direct
 linux wpa_supplicant connect <-> Android
 librairie wpa_supplicant: libwpa_client.so
 
-########Sticky
+########Mantras
+par défaut wpa_cli se branche à la première iface qu'il trouve dans /var/run/wpa_supplicant/
+
+########Sticky pour everyday's use
 #compil
 gcc libwpa_test.c -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils -lwpa_client
 
@@ -23,6 +26,18 @@ route -n #voir la gateway par défaut (utile pour rebasculer en mode http web cl
 #restaurer le http www après un udhcpc -i p2p-wlan0-N
 route del -net 0.0.0.0 gw 192.168.49.1 netmask 0.0.0.0 dev p2p-wlan0-N #mais si tu disconnect normalement ça disparait
 echo nameserver 192.168.1.1 > /etc/resolv.conf
+
+#261121
+repasser en listen après déconnexion ou failure connexion:
+
+à quoi je dois réagir dans mon client perso pour repasser en listen? Qu'est ce qui peut arriver?
+P2P-GO-NEG-FAILURE
+P2P-GROUP-REMOVED p2p-wlan0-84 client reason=IDLE
+P2P-DEVICE-LOST p2p_dev_addr=d6:c9:4b:81:c2:73
+
+est que faire un petit p2p_flush ferait pas de mal????
+
+
 
 
 #251121

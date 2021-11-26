@@ -25,6 +25,12 @@
 #include "common/wpa_ctrl.h"
 
 
+struct wpa_ctrl *ctrl;
+char buf[4096];
+size_t len;	
+
+
+
 /**
  * Compare addr avec une liste d'adresses connues, return true si au moins une occurence
  * 
@@ -48,43 +54,38 @@ bool chkmacaddr(char *addr)
 }
 
 
+void lance_listen(){
+	printf("On lance cmd=P2P_LISTEN...\n");
+	len = sizeof(buf) - 1; //il faut réattribuer avant chaque utilisation, sinon segfault ou reste à la première valeur
+	wpa_ctrl_request(ctrl, "P2P_LISTEN", 10, buf, &len, NULL);
+	printf("reponse: len=%d , %s",len,buf);
+}
+
+
+
 
 int main(int argc, char *argv[])
 {
-	struct wpa_ctrl *ctrl;
 	
-
-	char buf[4096];
-	size_t len;	
-
-
 	ctrl = wpa_ctrl_open("/var/run/wpa_supplicant/p2p-dev-wlan0");
 	if (!ctrl)
 		return -1;
 	if (wpa_ctrl_attach(ctrl) == 0){
 		
+		lance_listen();
 		
-		len = sizeof(buf) - 1; //il faut réattribuer avant chaque utilisation, sinon segfault ou reste à la première valeur
-		wpa_ctrl_request(ctrl, "P2P_LISTEN", 10, buf, &len, NULL);
-		printf("reponse: len=%d , %s \n",len,buf);
-		
-		//ecouter
 		while (1) {
 		
-		printf("Boucle debut\n");
+		//printf("Boucle debut\n");
 			
 			if (wpa_ctrl_pending(ctrl)) {
-
-
-			
-			printf("on a un msg\n");
 
 			len = sizeof(buf) - 1;
 			wpa_ctrl_recv(ctrl, buf, &len);
 			
-			printf("event: len=%d , %s \n",len,buf);
+			printf("Rx event: len=%d , %s \n",len,buf);
 			
-			//On veut gérer qq chose qui ressemble à:
+			//On veut répondre à une demande de connexion du type:
 			//<3>P2P-GO-NEG-REQUEST 1a:f0:e4:11:ef:ba dev_passwd_id=4 go_intent=64:11:ef:ba bssid=1a:f0:e4:11:ef:ba unknown-networkonfig_methods=0x188 dev_capab=0x25 group_capab=0x0 new=1 
 			if (strstr(buf, "P2P-GO-NEG-REQUEST")) {
 				printf("on a Rx: P2P-GO-NEG-REQUEST\n");
@@ -95,9 +96,7 @@ int main(int argc, char *argv[])
 				token = strtok(buf, " "); //à ce stade token = <3>P2P-GO-NEG-REQUEST
 				raddr = strtok(NULL, " "); //oui c'est hyper chelou la manière d'avancer dans buf... là on est au 2ème token
 				printf("requester mac addr=%s\n", raddr);
-
-
-				
+			
 				//on checke si addr du requester connue, fonction perso
 				if (chkmacaddr(raddr)){
 					 printf("chkmacaddr a return true donc addresse: %s connue\n", raddr);

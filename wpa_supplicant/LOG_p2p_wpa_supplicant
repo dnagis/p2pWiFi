@@ -12,10 +12,12 @@ gcc libwpa_test.c -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/init
 
 #accepter une demande de connexion venant d'un de mes devices Android
 p2p_listen
-p2p_connect 1a:f0:e4:11:ef:ba pbc go_intent=0 	#Redmi note 4
 p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0 	#Moto Z3 play
+p2p_connect 1a:f0:e4:11:ef:ba pbc go_intent=0 	#Redmi note 4
 p2p_connect 7e:42:6e:7f:a3:da pbc go_intent=0 	#Poco M3
 p2p_connect e2:c3:77:fd:59:5c pbc 				#Galaxy Tab S5e
+
+udhcpc -i p2p-wlan0-
 
 98:af:65:ce:18:6f #NUC
 

@@ -30,24 +30,51 @@ ping www.windguru.cz #voir si des paquets peuvent aller sur le www
 route del -net 0.0.0.0 gw 192.168.49.1 netmask 0.0.0.0 dev p2p-wlan0-N #mais si tu disconnect normalement ça disparait
 echo nameserver 192.168.1.1 > /etc/resolv.conf #normalement, maintenant /usr/share/udhcpc/default.script ne passe plus par modif resolv si pattern match regex "p2p-wlan0-"
 
+#291121
+dbus
+killall wpa_supplicant
+dbus-daemon --system
+wpa_supplicant -iwlan0 -c/etc/wpa_supplicant.conf -u
+dbus: Could not request service name: org.freedesktop.DBus.Error.AccessDenied Connection ":1.0" is not allowed to own the service "fi.w1.wpa_supplicant1" due to security policies in the configuration file
+
+google sur l'erreur: chez arch:
+https://bbs.archlinux.org/viewtopic.php?id=231341
+
+kill -1 `pgrep dbus` 
+--> cat /var/log/messages
+Nov 29 09:22:04 (none) daemon.info dbus-daemon[3183]: [system] Reloaded configuration
+
+
+/usr/share/dbus-1/system.d/ est vide --> y mettre fichier de config (je maintiens dans le github p2p_wifi: 
+
+je crée un 
+/usr/share/dbus-1/system.d/wpa_supplicant.conf
+
+j'y met le contenu de https://bbs.archlinux.org/viewtopic.php?id=231341 (post du 291017)
+kill -1 `pgrep dbus` 
+wpa_supplicant -iwlan0 -c/etc/wpa_supplicant.conf -u
+--> ne plante pas
+
+dbus-send --system --dest=org.freedesktop.DBus --type=method_call --print-reply /org/freedesktop/DBus org.freedesktop.DBus.ListNames
+...
+fi.w1.wpa_supplicant1
+...
+
+
+
 #281121
 reprise de core.sfs
-
 wpa_cli -i wlan0 -a /usr/share/wpa_action_scripts/wpa_action_wlan0.sh &
 
-p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0
 
 #261121
 repasser en listen après déconnexion ou failure connexion:
-
 à quoi je dois réagir dans mon client perso pour repasser en listen? Qu'est ce qui peut arriver?
 P2P-GO-NEG-FAILURE
 P2P-GROUP-REMOVED p2p-wlan0-84 client reason=IDLE
 P2P-DEVICE-LOST p2p_dev_addr=d6:c9:4b:81:c2:73
 
-est que faire un petit p2p_flush ferait pas de mal????
-
-
+p2p_flush could help????
 
 
 #251121

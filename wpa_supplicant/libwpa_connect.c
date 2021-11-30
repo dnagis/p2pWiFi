@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 			//On veut répondre à une demande de connexion du type:
 			//<3>P2P-GO-NEG-REQUEST 1a:f0:e4:11:ef:ba dev_passwd_id=4 go_intent=64:11:ef:ba bssid=1a:f0:e4:11:ef:ba unknown-networkonfig_methods=0x188 dev_capab=0x25 group_capab=0x0 new=1 
 			if (strstr(buf, "P2P-GO-NEG-REQUEST")) {
-				printf("on a Rx: P2P-GO-NEG-REQUEST\n");
+				printf("Detection Rx P2P-GO-NEG-REQUEST\n");
 				
 				//Récupération de l'addr mac du requester
 				char * raddr; //requester mac address
@@ -114,6 +114,14 @@ int main(int argc, char *argv[])
 					
 					}					
 				}
+			
+			//Rx: P2P-GROUP-REMOVED -->	on relance p2p_listen
+			if (strstr(buf, "P2P-GROUP-REMOVED")) {
+				printf("Detection Rx P2P-GROUP-REMOVED\n");
+				lance_listen();
+				}
+				
+				
 			}
 		
 		

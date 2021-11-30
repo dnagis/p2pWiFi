@@ -8,14 +8,16 @@ par défaut wpa_cli se branche à la première iface qu'il trouve dans /var/run/
 
 ########Sticky pour everyday's use
 #compil
-gcc libwpa_test.c -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils -lwpa_client
-
+INCLUDES="-I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils"
+gcc libwpa_connect.c $INCLUDES -lwpa_client
+ 
+ 
 #accepter une demande de connexion venant d'un de mes devices Android
 p2p_listen
 p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0 	#Moto Z3 play
 p2p_connect 1a:f0:e4:11:ef:ba pbc go_intent=0 	#Redmi note 4
 p2p_connect 7e:42:6e:7f:a3:da pbc go_intent=0 	#Poco M3
-p2p_connect e2:c3:77:fd:59:5c pbc 				#Galaxy Tab S5e
+p2p_connect e2:c3:77:fd:59:5c pbc go_intent=0 	#Galaxy Tab S5e
 
 udhcpc -i p2p-wlan0-
 
@@ -60,6 +62,13 @@ dbus-send --system --dest=org.freedesktop.DBus --type=method_call --print-reply 
 fi.w1.wpa_supplicant1
 ...
 
+import dbus
+https://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.2.18.tar.gz	./configure --prefix=/usr  python3 --> import dbus OK
+
+import gobject --> je crois que pas possible donc: from gi.repository import GObject as gobject
+pygobject-3.42.0.tar.xz lien vers source des tarballs: https://pygobject.readthedocs.io/en/latest/bugs_repo.html
+	 meson builddir --prefix=/usr && ninja -C builddir && ninja install -C builddir puis from gi.repository import GObject as gobject
+
 
 
 #281121
@@ -92,14 +101,16 @@ je modifie /usr/share/udhcpc/default.script pour ne pas avoir à restaurer /etc/
 
 
 #241121
-J'arrive à faire fonctionner l'action script (attention je n'ai pas réussi à faire du logger -/var/log/messages- avec, m'avait déprimé)
+action script wlan0:
+J'arrive à faire fonctionner l'action script (initialement je n'avais pas réussi à faire du logger -/var/log/messages- avec,
+ m'avait déprimé, pourtant fonctionne sans problème maintenant)
 wpa_cli -iwlan0 -a /root/action_wpa.sh #et dans une autre console wpa_cli -iwlan0 disconnect puis reconnect
 wpa_cli -a /root/action_wpa.sh
 $1 ==> p2p-dev-wlan0
 $2 ==> P2P-GROUP-STARTED ou P2P-GROUP-REMOVED
 
 
-action script:
+action script P2P:
 inspiration dans: wpa_supplicant/examples/p2p-action.sh 
 #!/bin/bash
 echo "debut action script" $1 $2 $3 $4

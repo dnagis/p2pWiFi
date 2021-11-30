@@ -58,7 +58,7 @@ void lance_listen(){
 	printf("On lance cmd=P2P_LISTEN...\n");
 	len = sizeof(buf) - 1; //il faut réattribuer avant chaque utilisation, sinon segfault ou reste à la première valeur
 	wpa_ctrl_request(ctrl, "P2P_LISTEN", 10, buf, &len, NULL);
-	printf("reponse: len=%d , %s",len,buf);
+	printf("reponse: len=%d , %.*s\n",len,len,buf); //%.*s => n'imprimer que len caractères (*='precision specifier' pour printf)
 }
 
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 			len = sizeof(buf) - 1;
 			wpa_ctrl_recv(ctrl, buf, &len);
 			
-			printf("Rx event: len=%d , %s \n",len,buf);
+			printf("Rx event: len=%d , %.*s\n",len,len,buf); //%.*s => n'imprimer que len caractères (*='precision specifier' pour printf)
 			
 			//On veut répondre à une demande de connexion du type:
 			//<3>P2P-GO-NEG-REQUEST 1a:f0:e4:11:ef:ba dev_passwd_id=4 go_intent=64:11:ef:ba bssid=1a:f0:e4:11:ef:ba unknown-networkonfig_methods=0x188 dev_capab=0x25 group_capab=0x0 new=1 
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 					printf("on va envoyer la commande: %s\n", cmd);
 					len = sizeof(buf) - 1;
 					wpa_ctrl_request(ctrl, cmd, 45, buf, &len, NULL);
-					printf("reponse: len=%d , %s \n",len,buf);
+					printf("reponse: len=%d , %.*s\n",len,len,buf); //%.*s => n'imprimer que len caractères (*='precision specifier' pour printf)
 					
 					}					
 				}

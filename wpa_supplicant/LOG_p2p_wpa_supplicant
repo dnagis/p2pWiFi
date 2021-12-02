@@ -32,6 +32,51 @@ ping www.windguru.cz #voir si des paquets peuvent aller sur le www
 route del -net 0.0.0.0 gw 192.168.49.1 netmask 0.0.0.0 dev p2p-wlan0-N #mais si tu disconnect normalement ça disparait
 echo nameserver 192.168.1.1 > /etc/resolv.conf #normalement, maintenant /usr/share/udhcpc/default.script ne passe plus par modif resolv si pattern match regex "p2p-wlan0-"
 
+#021221
+Première connexion (i.e. pas une reconnexion):
+Linux as GO, Android as client premiers essais sur le NUC
+redémarrage frais du NUC et du tel
+cp /initrd/mnt/dev_save/packages/busybox-1.31.1/examples/udhcp/udhcpd.conf /etc/
+	# The start and end of the IP lease block
+	start		192.168.49.20
+	end		192.168.49.254
+	# The interface that udhcpd will use
+	interface p2p-wlan0-0
+mkdir /var/lib/misc/
+touch /var/lib/misc/udhcpd.leases
+
+wpa_cli -i p2p-dev-wlan0 p2p_group_add --> crée une p2p-wlan0-0
+wpa_cli -i p2p-wlan0-0 wps_pbc
+
+ifconfig p2p-wlan0-0 192.168.49.1
+udhcpd -f /etc/udhcpd.conf
+
+lancer l'appli Android, cliquer sur l'interface graphique pour qu'elle reste en fg
+Android demande une IP -> actuellement 192.168.49.20
+
+#011221
+Je découvre qu'avec le RPi je n'ai jamais P2P-GROUP-REMOVED
+
+JE commence à essayer d'avoir le RPi en GO:
+
+#Côté rpi (GO)
+wpa_cli -i p2p-dev-wlan0 p2p_group_add
+--> crée une p2p-wlan0-0
+wpa_cli -i p2p-wlan0-0 wps_pbc
+ifconfig p2p-wlan0-0 192.168.49.2
+
+#Côté NUC (client), sur p2p-dev-wlan0
+p2p_find
+p2p_connect ba:27:eb:92:fc:8f pbc join
+ifconfig p2p-wlan0-19 192.168.49.1
+
+
+sans attribution via DHCP au tel il se déconnecte
+ifconfig p2p-wlan0-0 192.168.49.1
+editer /etc/udhcpd.conf --> interface p2p-wlan0-0
+udhcpd -f /etc/udhcpd.conf
+
+
 #291121
 dbus
 killall wpa_supplicant

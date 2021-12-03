@@ -95,7 +95,7 @@ Nov 29 09:22:04 (none) daemon.info dbus-daemon[3183]: [system] Reloaded configur
 /usr/share/dbus-1/system.d/ est vide --> y mettre fichier de config (je maintiens dans le github p2p_wifi: 
 
 je crée un 
-/usr/share/dbus-1/system.d/wpa_supplicant.conf
+/usr/share/dbus-1/system.d/dbus_policy_wpa_supplicant.conf
 
 j'y met le contenu de https://bbs.archlinux.org/viewtopic.php?id=231341 (post du 291017)
 kill -1 `pgrep dbus` 

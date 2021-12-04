@@ -1,0 +1,14 @@
+########Mantras P2P - wpa_supplicant
+##trouvailles "noteworthy"
+
+-par défaut (sans -i) wpa_cli se branche à la première iface qu'il trouve dans /var/run/wpa_supplicant/
+
+-la carte réseau du NUC et celle du zero n'ont pas toujours le même comportement (disconnects intempestifs du NUC client: P2P-GROUP-REMOVED reason=idle pas observé sur le zero)
+
+-pour l'instant je n'ai jamais pu réfuter l'hypothèse: wifi standard et wifi p2p coexistent sans interférence (par exple: ssh NUC vers RPi via routeur livebox
+ pour faire du P2P sur le RPi = aucun problème)
+	
+-en wifi classique ya qu'une seule interface wlan0. en p2p c'est plus compliqué: au départ ya p2p-dev-wlan0 et ensuite une/des p2p-wlan0-[0-9]
+
+-le système de lancement d'un script en bash par wpa_supplicant (-a) "action script" fonctionne, peut logger (syslog), peut répondre à des évènements P2P
+MAIS l'exemple d'archwiki ne marche pas

@@ -3,8 +3,7 @@ P2P-wifi aka WiFi Direct
 linux wpa_supplicant connect <-> Android
 librairie wpa_supplicant: libwpa_client.so
 
-########Mantras
-par défaut wpa_cli se branche à la première iface qu'il trouve dans /var/run/wpa_supplicant/
+
 
 ########Sticky pour everyday's use
 #compil

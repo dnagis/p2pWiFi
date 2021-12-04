@@ -1,26 +1,29 @@
-#loop pour attendre des events venant de wpas. Et qui ne fasse pas tourner 100% du CPU
-#comme les exemples trouvés dans les sources wpa_supplicant (wpa_supplicant-2.9/wpa_supplicant/examples/p2p/)
-#dbus-python-1.2.18/examples/example-service.py
-
-
 #!/usr/bin/env python3
 
+#Juste s'interesser au loop
+#https://dbus.freedesktop.org/doc/dbus-python/tutorial.html#setting-up-an-event-loop
+#https://stackoverflow.com/questions/56684286/how-to-gracefully-terminate-a-glib-main-loop-from-python
 
+
+from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
+import signal
 
-import dbus
-import dbus.service
-import dbus.mainloop.glib
+def sigint_handler(sig, frame):
+    if sig == signal.SIGINT:
+        loop.quit()
+    else:
+        raise ValueError("Undefined handler for '{}'".format(sig))
+
 
 
 if __name__ == '__main__':
-    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+	
+	DBusGMainLoop(set_as_default=True)
 
-    system_bus = dbus.SystemBus()
-    #name = dbus.service.BusName("com.example.SampleService", session_bus)
-    #object = SomeObject(session_bus, '/SomeObject')
+	print("Running ton loop...")
+	
+	signal.signal(signal.SIGINT, sigint_handler)
+	loop = GLib.MainLoop()
+	loop.run()
 
-    mainloop = GLib.MainLoop()
-    print("Running example service.")
-    #print(usage)
-    mainloop.run()

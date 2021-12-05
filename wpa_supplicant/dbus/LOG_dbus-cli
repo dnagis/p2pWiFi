@@ -1,0 +1,48 @@
+#Comprendre le dbus, avec des commandes dbus-send dbus-monitor etc...
+#lister les services dbus
+
+dbus-send --system --print-reply --dest=org.freedesktop.DBus  /org/freedesktop/DBus org.freedesktop.DBus.ListNames
+method return time=1638623826.043596 sender=org.freedesktop.DBus -> destination=:1.90 serial=3 reply_serial=2
+   array [
+      string "org.freedesktop.DBus"
+      string ":1.3"
+      string ":1.0"
+      string ":1.90"
+      string "fi.w1.wpa_supplicant1"
+      string ":1.2"
+   ]
+
+fi.w1.wpa_supplicant1 = 'dbus service'
+pour lister ses methodes:
+
+dbus-send --system --type=method_call --print-reply --dest=fi.w1.wpa_supplicant1 /fi/w1/wpa_supplicant1 org.freedesktop.DBus.Introspectable.Introspect
+m'envoie un fichier XML
+
+pour qu'il soit lisible, bricoler l'output dans un fichier et ne laisser que: <node><interface name="org.freed .... name="Interfaces"/></node>
+et le passer dans:
+ | xmllint --format -
+
+dedans je vois
+
+<property name="Interfaces" type="ao" access="read"
+https://w1.fi/wpa_supplicant/devel/dbus.html#dbus_main me dit:
+An array with paths to D-Bus objects representing controlled interfaces each.
+
+dbus-send --system --dest=fi.w1.wpa_supplicant1 --print-reply /fi/w1/wpa_supplicant1 org.freedesktop.DBus.Properties.Get string:fi.w1.wpa_supplicant1 string:Interfaces
+
+   variant       array [
+         object path "/fi/w1/wpa_supplicant1/Interfaces/0"
+      ]
+      
+dbus-send --system --dest=fi.w1.wpa_supplicant1 --print-reply /fi/w1/wpa_supplicant1 org.freedesktop.DBus.Properties.Get string:fi.w1.wpa_supplicant1 string:Capabilities
+
+   variant       array [
+         string "ap"
+         string "p2p"
+      ]
+
+Donc le deuxième argument string c'est la property, et j'apl la fonction définie dans org.freedesktop.DBus.Properties.Get avec deux arguments
+
+
+
+

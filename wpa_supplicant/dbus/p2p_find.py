@@ -2,7 +2,7 @@
 
 #accès à wpa_supplicant via dbus-python
 #wpa_supplicant-2.9/wpa_supplicant/examples/p2p/p2p_find.py
-#mais avec un loop qui ne laisse mes CPU tranquilles
+#mais avec un loop qui ne laisse mes CPU tranquilles (voir fichier à côté: simple_loop.py)
 
 
 import dbus

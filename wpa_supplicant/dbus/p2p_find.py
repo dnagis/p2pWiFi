@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-#accès à wpa_supplicant via dbus-python
+#accès à wpa_supplicant via dbus-python. 
+#Lance listen en P2P et Rx les signaux deviceFound / deviceLost
 #wpa_supplicant-2.9/wpa_supplicant/examples/p2p/p2p_find.py
 #mais avec un loop qui ne laisse mes CPU tranquilles (voir fichier à côté: simple_loop.py)
 
@@ -19,8 +20,12 @@ def sigint_handler(sig, frame):
 # Required Signals
 def deviceFound(devicepath):
 	print("Device found: %s" % (devicepath))
-	#addr=devicepath.DeviceAddress
-	#print("addr: %s"+addr)
+	#merci https://stackoverflow.com/questions/945007/dbus-interface-properties
+	peer_found = bus.get_object("fi.w1.wpa_supplicant1", devicepath)
+	props_iface = dbus.Interface(peer_found, 'org.freedesktop.DBus.Properties')
+	properties = props_iface.GetAll('fi.w1.wpa_supplicant1.Peer')
+	print(properties)
+	# dbus.String('DeviceAddress'): dbus.Array([dbus.Byte(186), dbus.Byte(39), dbus.Byte(235), dbus.Byte(146), dbus.Byte(252), dbus.Byte(143)], signature=dbus.Signature('y'), variant_level=1),
 
 def deviceLost(devicepath):
 	print("Device lost: %s" % (devicepath))
@@ -45,7 +50,7 @@ if __name__ == '__main__':
 	wpas = dbus.Interface(wpas_object,wpas_dbus_interface)
 	
 	path = wpas.GetInterface(interface_name)
-	print("path=" + path)
+	#print("path=" + path)
 	
 	interface_object = bus.get_object(wpas_dbus_interface, path)
 	p2p_interface = dbus.Interface(interface_object,wpas_dbus_interfaces_p2pdevice)
@@ -56,7 +61,7 @@ if __name__ == '__main__':
 	P2PFindDict = dbus.Dictionary({'Timeout':int(60)})
 	p2p_interface.Find(P2PFindDict)
 	
-	
+	#On lance un loop 
 	signal.signal(signal.SIGINT, sigint_handler)
 	loop = GLib.MainLoop()
 	loop.run()

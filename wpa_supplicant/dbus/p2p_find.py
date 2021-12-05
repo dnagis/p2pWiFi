@@ -19,8 +19,8 @@ def sigint_handler(sig, frame):
 # Required Signals
 def deviceFound(devicepath):
 	print("Device found: %s" % (devicepath))
-	addr=devicepath.DeviceAddress
-	print("addr: %s"+addr)
+	#addr=devicepath.DeviceAddress
+	#print("addr: %s"+addr)
 
 def deviceLost(devicepath):
 	print("Device lost: %s" % (devicepath))
@@ -31,7 +31,9 @@ if __name__ == '__main__':
 	DBusGMainLoop(set_as_default=True)
 	
 	wpas_dbus_interface = "fi.w1.wpa_supplicant1"
+	#mon hypothèse est qu'en dbus, la seule interface qui existe c'est wlan0. p2p-dev-wlan0 n'existe pas pour dbus
 	interface_name = "wlan0"
+	#"opath" --> "object path"
 	wpas_dbus_opath = "/fi/w1/wpa_supplicant1"
 	wpas_wpas_dbus_interfaces_opath = "/fi/w1/wpa_supplicant1/Interfaces"
 	wpas_dbus_interfaces_interface = wpas_dbus_interface + ".Interface"

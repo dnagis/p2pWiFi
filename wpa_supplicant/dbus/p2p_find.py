@@ -19,6 +19,8 @@ def sigint_handler(sig, frame):
 # Required Signals
 def deviceFound(devicepath):
 	print("Device found: %s" % (devicepath))
+	addr=devicepath.DeviceAddress
+	print("addr: %s"+addr)
 
 def deviceLost(devicepath):
 	print("Device lost: %s" % (devicepath))

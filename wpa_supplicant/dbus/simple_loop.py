@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-#Juste s'interesser au loop
+#Juste avoir un loop, parce que le loop des scripts dans wpa_supplicant-2.9/wpa_supplicant/examples/p2p/ bouffe du CPU
+#et n'a pas l'air d'être dans les bonnes pratiques du moment
 #https://dbus.freedesktop.org/doc/dbus-python/tutorial.html#setting-up-an-event-loop
 #https://stackoverflow.com/questions/56684286/how-to-gracefully-terminate-a-glib-main-loop-from-python
 

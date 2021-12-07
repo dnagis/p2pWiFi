@@ -21,10 +21,11 @@ def sigint_handler(sig, frame):
 def deviceFound(devicepath):
 	print("Device found: %s" % (devicepath))
 	#merci https://stackoverflow.com/questions/945007/dbus-interface-properties
-	peer_found = bus.get_object("fi.w1.wpa_supplicant1", devicepath)
-	props_iface = dbus.Interface(peer_found, 'org.freedesktop.DBus.Properties')
-	properties = props_iface.GetAll('fi.w1.wpa_supplicant1.Peer')
-	print(properties)
+	#peer_found = bus.get_object("fi.w1.wpa_supplicant1", devicepath)
+	#props_iface = dbus.Interface(peer_found, 'org.freedesktop.DBus.Properties')
+	#properties = props_iface.GetAll('fi.w1.wpa_supplicant1.Peer')
+	
+	#print(properties)
 	# dbus.String('DeviceAddress'): dbus.Array([dbus.Byte(186), dbus.Byte(39), dbus.Byte(235), dbus.Byte(146), dbus.Byte(252), dbus.Byte(143)], signature=dbus.Signature('y'), variant_level=1),
 
 def deviceLost(devicepath):
@@ -58,7 +59,7 @@ if __name__ == '__main__':
 	bus.add_signal_receiver(deviceFound,dbus_interface=wpas_dbus_interfaces_p2pdevice,signal_name="DeviceFound")
 	bus.add_signal_receiver(deviceLost,dbus_interface=wpas_dbus_interfaces_p2pdevice,signal_name="DeviceLost")
 	
-	P2PFindDict = dbus.Dictionary({'Timeout':int(60)})
+	P2PFindDict = dbus.Dictionary({'Timeout':int(30)})
 	p2p_interface.Find(P2PFindDict)
 	
 	#On lance un loop 

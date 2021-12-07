@@ -23,10 +23,11 @@ wpas = bus.get_object('fi.w1.wpa_supplicant1','/fi/w1/wpa_supplicant1')
 wlan0_path = wpas.GetInterface('wlan0', dbus_interface='fi.w1.wpa_supplicant1')
 
 
-print(wlan0_path)
+print(wlan0_path) #/fi/w1/wpa_supplicant1/Interfaces/0
 
 
 #Je récupère un proxy vers wlan0, en utilisant l'objet proxy wpas
+#Je suppose que wlan0_path est toujours = à /fi/w1/wpa_supplicant1/Interfaces/0 , ça évite deux lignes de code (bus.get_object() et GetInterface())
 wlan0_object = bus.get_object('fi.w1.wpa_supplicant1', wlan0_path)
 
 #Je récupère une objet de type dbus.Interface qui me permettra d'appeler les methodes dessus
@@ -37,6 +38,8 @@ p2p_interface = dbus.Interface(wlan0_object, dbus_interface='fi.w1.wpa_supplican
 #Appel de Find(), possible de vérifier le fonctionnement avec une autre fenêtre wpa_cli -i p2p-dev-wlan0 
 P2PFindDict = dbus.Dictionary({'Timeout':int(30)})
 p2p_interface.Find(P2PFindDict)
+
+
 
 
 

@@ -17,17 +17,13 @@ def sigint_handler(sig, frame):
     else:
         raise ValueError("Undefined handler for '{}'".format(sig))
 
-# Required Signals
+# Callbacks pour les Rx de Signals
 def deviceFound(devicepath):
 	print("Device found: %s" % (devicepath))
-	#merci https://stackoverflow.com/questions/945007/dbus-interface-properties
-	#peer_found = bus.get_object("fi.w1.wpa_supplicant1", devicepath)
-	#props_iface = dbus.Interface(peer_found, 'org.freedesktop.DBus.Properties')
-	#properties = props_iface.GetAll('fi.w1.wpa_supplicant1.Peer')
+	peer_found = bus.get_object("fi.w1.wpa_supplicant1", devicepath)
+	macpeer = peer_found.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceAddress', dbus_interface=dbus.PROPERTIES_IFACE)
+	print("adresse mac = %s" % macpeer)
 	
-	#print(properties)
-	# dbus.String('DeviceAddress'): dbus.Array([dbus.Byte(186), dbus.Byte(39), dbus.Byte(235), dbus.Byte(146), dbus.Byte(252), dbus.Byte(143)], signature=dbus.Signature('y'), variant_level=1),
-
 def deviceLost(devicepath):
 	print("Device lost: %s" % (devicepath))
 
@@ -37,7 +33,7 @@ if __name__ == '__main__':
 	DBusGMainLoop(set_as_default=True)
 	
 	wpas_dbus_interface = "fi.w1.wpa_supplicant1"
-	#mon hypothèse est qu'en dbus, la seule interface qui existe c'est wlan0. p2p-dev-wlan0 n'existe pas pour dbus
+	#En dbus, la seule interface qui existe c'est wlan0. p2p-dev-wlan0 n'existe pas pour dbus
 	interface_name = "wlan0"
 	#"opath" --> "object path"
 	wpas_dbus_opath = "/fi/w1/wpa_supplicant1"
@@ -56,6 +52,7 @@ if __name__ == '__main__':
 	interface_object = bus.get_object(wpas_dbus_interface, path)
 	p2p_interface = dbus.Interface(interface_object,wpas_dbus_interfaces_p2pdevice)
 	
+	#enregistrement des callbacks pour les signaux dbus
 	bus.add_signal_receiver(deviceFound,dbus_interface=wpas_dbus_interfaces_p2pdevice,signal_name="DeviceFound")
 	bus.add_signal_receiver(deviceLost,dbus_interface=wpas_dbus_interfaces_p2pdevice,signal_name="DeviceLost")
 	

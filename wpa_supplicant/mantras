@@ -13,7 +13,5 @@
 -le système de lancement d'un script en bash par wpa_supplicant (-a) "action script" fonctionne, peut logger (syslog), peut répondre à des évènements P2P
 	MAIS l'exemple de l'archwiki ne marche pas
 
--dbus: attention: "interface" est un mot clé particulier dans dbus (un peu comme en Java), à ne pas confondre avec l'interface de type network
-
--dbus: pour compliquer le tout, dans le monde de dbus, il n'y a que wlan0: pour accéder au P2P il faut passer par wlan0 dans dbus, il n'y a pas d'interface de type
-	p2p-dev-wlan0, mais possible quand même d'accéder au p2p.
+-dbus: dans le monde de dbus, il n'y a qu'une interface réseau: wlan0: pour accéder au P2P il faut passer par wlan0 dans dbus, il n'y a pas d'interface de type
+	p2p-dev-wlan0

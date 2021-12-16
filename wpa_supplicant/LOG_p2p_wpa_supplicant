@@ -31,10 +31,14 @@ ping www.windguru.cz #voir si des paquets peuvent aller sur le www
 route del -net 0.0.0.0 gw 192.168.49.1 netmask 0.0.0.0 dev p2p-wlan0-N #mais si tu disconnect normalement ça disparait
 echo nameserver 192.168.1.1 > /etc/resolv.conf #normalement, maintenant /usr/share/udhcpc/default.script ne passe plus par modif resolv si pattern match regex "p2p-wlan0-"
 
-#021221
-Première connexion (i.e. pas une reconnexion):
-Linux as GO, Android as client premiers essais sur le NUC
-redémarrage frais du NUC et du tel
+#161221
+Première connexion (i.e. pas de reconnexion après une première connexion):
+Linux as GO, Android as client
+- 1) Linux = NUC: redémarrage frais du NUC et du tel
+- 2) Linux = RPi: reboot frais RPi seulement (tel pas besoin). NB parfaitement possible de contrôler le RPi en ssh via router (wifi standard)
+	
+
+* Préparation udhcpcd
 cp /initrd/mnt/dev_save/packages/busybox-1.31.1/examples/udhcp/udhcpd.conf /etc/
 	# The start and end of the IP lease block
 	start		192.168.49.20
@@ -46,12 +50,22 @@ touch /var/lib/misc/udhcpd.leases
 
 wpa_cli -i p2p-dev-wlan0 p2p_group_add --> crée une p2p-wlan0-0
 wpa_cli -i p2p-wlan0-0 wps_pbc
+nb je n'ai pas besoin de faire de lancer un p2p_listen!
 
 ifconfig p2p-wlan0-0 192.168.49.1
 udhcpd -f /etc/udhcpd.conf
 
 lancer l'appli Android, cliquer sur l'interface graphique pour qu'elle reste en fg
-Android demande une IP -> actuellement 192.168.49.20
+Android demande une IP -> je le vois quand udhcpd est en foreground, allouée = toujours 192.168.49.20
+je peux pinger Android depuis linux: ping 192.168.49.20
+
+je peux automatiser au boot avec dans /bin/wifi :
+
+wpa_cli -i p2p-dev-wlan0 p2p_group_add
+wpa_cli -i p2p-wlan0-0 wps_pbc
+ifconfig p2p-wlan0-0 192.168.49.1
+udhcpd -S /etc/udhcpd.conf
+
 
 #011221
 Je découvre qu'avec le RPi je n'ai jamais P2P-GROUP-REMOVED

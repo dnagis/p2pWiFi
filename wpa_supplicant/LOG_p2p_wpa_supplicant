@@ -6,11 +6,7 @@ librairie wpa_supplicant: libwpa_client.so
 
 
 ########Sticky pour everyday's use
-#compil
-INCLUDES="-I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils"
-gcc libwpa_connect.c $INCLUDES -lwpa_client
- 
- 
+
 #accepter une demande de connexion venant d'un de mes devices Android
 p2p_listen
 p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0 	#Moto Z3 play
@@ -23,13 +19,20 @@ udhcpc -i p2p-wlan0-
 98:af:65:ce:18:6f #NUC
 
 #commandes utiles
-ip a #voir si une p2p-wlan0-N est bien là
-route -n #voir la gateway par défaut (utile pour rebasculer en mode http web classique sur le NUC)
-ping www.windguru.cz #voir si des paquets peuvent aller sur le www
+ip a 						#voir les interfaces disponibles (une p2p-wlan0-N est là?)
+ls /var/run/wpa_supplicant/	#autre moyen de voir les interfaces disponibles
+route -n 					#voir la gateway par défaut (utile pour rebasculer en mode http web classique sur le NUC)
+ping www.windguru.cz		#voir si des paquets peuvent aller sur le www
 
 #restaurer le http www après un udhcpc -i p2p-wlan0-N
 route del -net 0.0.0.0 gw 192.168.49.1 netmask 0.0.0.0 dev p2p-wlan0-N #mais si tu disconnect normalement ça disparait
 echo nameserver 192.168.1.1 > /etc/resolv.conf #normalement, maintenant /usr/share/udhcpc/default.script ne passe plus par modif resolv si pattern match regex "p2p-wlan0-"
+
+#compil
+INCLUDES="-I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils"
+gcc libwpa_connect.c $INCLUDES -lwpa_client
+ 
+######## 
 
 #161221
 Première connexion (i.e. pas de reconnexion après une première connexion):

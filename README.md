@@ -3,4 +3,6 @@
 # wpa_supplicant
 	côté linux
 
+# android
+	côté tel: samples/WiFiDirectDemo simplifié à l'extrême
 

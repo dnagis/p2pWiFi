@@ -71,7 +71,7 @@ udhcpd -S /etc/udhcpd.conf
 
 
 #011221
-Je découvre qu'avec le RPi je n'ai jamais P2P-GROUP-REMOVED
+Je découvre qu'avec le RPi en client je n'ai jamais P2P-GROUP-REMOVED contrairement au NUC
 
 JE commence à essayer d'avoir le RPi en GO:
 
@@ -81,14 +81,15 @@ wpa_cli -i p2p-dev-wlan0 p2p_group_add
 wpa_cli -i p2p-wlan0-0 wps_pbc
 ifconfig p2p-wlan0-0 192.168.49.2
 
-#Côté NUC (client), sur p2p-dev-wlan0
+#Côté NUC (client, juste pour essais), sur p2p-dev-wlan0
 p2p_find
 p2p_connect ba:27:eb:92:fc:8f pbc join
 ifconfig p2p-wlan0-19 192.168.49.1
 
 
-sans attribution via DHCP au tel il se déconnecte
+Avec le tel en client: sans attribution IP via DHCP il se déconnecte
 ifconfig p2p-wlan0-0 192.168.49.1
+busybox-1.31.1/examples/udhcp/udhcpd.conf
 editer /etc/udhcpd.conf --> interface p2p-wlan0-0
 udhcpd -f /etc/udhcpd.conf
 

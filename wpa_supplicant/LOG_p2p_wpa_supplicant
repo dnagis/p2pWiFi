@@ -17,6 +17,7 @@ p2p_connect e2:c3:77:fd:59:5c pbc go_intent=0 	#Galaxy Tab S5e
 udhcpc -i p2p-wlan0-
 
 98:af:65:ce:18:6f #NUC
+9c:b6:d0:17:2c:8f #XPS13
 
 #commandes utiles
 ip a 						#voir les interfaces disponibles (une p2p-wlan0-N est là?)
@@ -33,6 +34,38 @@ INCLUDES="-I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/d
 gcc libwpa_connect.c $INCLUDES -lwpa_client
  
 ######## 
+#271221 Recette propre pour connecter deux linux:
+exple avec NUC (GO) et XPS13
+-Sur le NUC (GO)
+wpa_cli -i p2p-dev-wlan0 p2p_group_add #une iface p2p-wlan0-N apparait dans ifconfig
+wpa_cli -i p2p-wlan0-N wps_pbc
+
+-Sur le XPS13
+wpa_cli en interface "device" (p2p-dev-wlan0)
+> p2p_find #jusqu'à ce que le NUC apparaisse (pour avoir son adr MAC, mais est ce que on ne peut pas lancer directement connect si on a la MAC?)
+> p2p_stop_find #juste pour arrêter d'avoir de nouvelles lignes
+> p2p_connect 98:af:65:ce:18:6f pbc join
+
+--> une iface p2p-wlan0-N apparait dans ifconfig
+
+-attribution des adresses IP sur chaque machine: 
+ifconfig p2p-wlan0-N 192.168.49.1
+ifconfig p2p-wlan0-N 192.168.49.2
+
+-Vérification du fonctionnement:
+	-ping de l'autre IP
+	-serveur http: 
+		1) Démarrer un serveur minimaliste dans un dir avec un/des fichiers à partager (rien a installer de pythonesque en plus dans focus):
+			python3 -m http.server 1337
+		2) Sur l'autre ordi récupérer le fichier avec
+			wget http://192.168.49.N:1337/nom_du_fichier
+
+-Déconnexion 
+	côté GO: wpa_cli -i p2p-dev-wlan0 p2p_group_remove p2p-wlan0-1
+	côté client: wpa_cli -i p2p-wlan0-N disconnect 
+	
+	--> les interfaces p2p-wlan0-N disparaissent de ifconfig
+
 
 #161221
 Première connexion (i.e. pas de reconnexion après une première connexion):

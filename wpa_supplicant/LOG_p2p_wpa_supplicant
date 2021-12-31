@@ -36,17 +36,20 @@ gcc libwpa_connect.c $INCLUDES -lwpa_client
 ######## 
 #311221 ssh du NUC vers le zero en p2p
 
--dans le sysinit du zero:
+-sysinit du zero (nb: loopback 'lo' pas indispensable)
 wpa_cli -i p2p-dev-wlan0 p2p_group_add
 wpa_cli -i p2p-wlan0-0 wps_pbc
 ifconfig p2p-wlan0-0 192.168.49.1
 udhcpd -S /etc/udhcpd.conf #pour Android au départ
 
--sur le NUC (< 120 s après démarrage du zero pour wps_pbc???)
-wpa_cli p2p_connect ba:27:eb:92:7c:8f pbc join
-ifconfig p2p-wlan0-5 192.168.49.2
+-sur le NUC 
+(< 120 s après démarrage du zero pour wps_pbc???timeout vraiment???)
+(nb: résiste au S2RAM du NUC, comme wlan0)
 
-essayer d'avoir automatiquement l'interface p2p:
+wpa_cli p2p_connect ba:27:eb:92:7c:8f pbc join
+ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.2
+
+avoir automatiquement l'interface p2p (p2p-wlan0-N):
 ls /sys/class/net/ | grep p2p
 
 

@@ -34,6 +34,24 @@ INCLUDES="-I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/d
 gcc libwpa_connect.c $INCLUDES -lwpa_client
  
 ######## 
+#311221 ssh du NUC vers le zero en p2p
+
+-dans le sysinit du zero:
+wpa_cli -i p2p-dev-wlan0 p2p_group_add
+wpa_cli -i p2p-wlan0-0 wps_pbc
+ifconfig p2p-wlan0-0 192.168.49.1
+udhcpd -S /etc/udhcpd.conf #pour Android au départ
+
+-sur le NUC (< 120 s après démarrage du zero pour wps_pbc???)
+wpa_cli p2p_connect ba:27:eb:92:7c:8f pbc join
+ifconfig p2p-wlan0-5 192.168.49.2
+
+essayer d'avoir automatiquement l'interface p2p:
+ls /sys/class/net/ | grep p2p
+
+
+
+
 #271221 Recette propre pour connecter deux linux:
 exple avec NUC (GO) et XPS13
 -Sur le NUC (GO)

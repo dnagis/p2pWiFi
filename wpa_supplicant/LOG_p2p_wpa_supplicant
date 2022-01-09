@@ -1,25 +1,39 @@
 P2P-wifi aka WiFi Direct
 
-linux wpa_supplicant connect <-> Android
-librairie wpa_supplicant: libwpa_client.so
 
-
-
-########Sticky pour everyday's use
-
-#accepter une demande de connexion venant d'un de mes devices Android
-p2p_listen
-p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0 	#Moto Z3 play
-p2p_connect 1a:f0:e4:11:ef:ba pbc go_intent=0 	#Redmi note 4
-p2p_connect 7e:42:6e:7f:a3:da pbc go_intent=0 	#Poco M3
-p2p_connect e2:c3:77:fd:59:5c pbc go_intent=0 	#Galaxy Tab S5e
-
-udhcpc -i p2p-wlan0-
-
+########Sticky
 98:af:65:ce:18:6f #NUC
+ba:27:eb:92:7c:8f #zero
 9c:b6:d0:17:2c:8f #XPS13
 
-#commandes utiles
+
+#connexion pour NUC --> zero
+
+-sysinit du zero (nb: loopback 'lo' pas indispensable)
+wpa_cli -i p2p-dev-wlan0 p2p_group_add
+wpa_cli -i p2p-wlan0-0 wps_pbc
+ifconfig p2p-wlan0-0 192.168.49.1
+udhcpd -S /etc/udhcpd.conf #pour Android, pas nécessaire ici (j'ifconfig une IP fixe)
+
+-sur le NUC 
+(< 120 s après démarrage du zero pour wps_pbc???timeout vraiment???)
+(nb: résiste au S2RAM du NUC, comme wlan0)
+
+wpa_cli p2p_connect ba:27:eb:92:7c:8f pbc join
+ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.2
+
+avoir automatiquement l'interface p2p (p2p-wlan0-N):
+ls /sys/class/net/ | grep p2p
+
+
+
+
+
+
+
+
+
+#commandes diverses utiles pour le network
 ip a 						#voir les interfaces disponibles (une p2p-wlan0-N est là?)
 ls /var/run/wpa_supplicant/	#autre moyen de voir les interfaces disponibles
 route -n 					#voir la gateway par défaut (utile pour rebasculer en mode http web classique sur le NUC)
@@ -29,11 +43,64 @@ ping www.windguru.cz		#voir si des paquets peuvent aller sur le www
 route del -net 0.0.0.0 gw 192.168.49.1 netmask 0.0.0.0 dev p2p-wlan0-N #mais si tu disconnect normalement ça disparait
 echo nameserver 192.168.1.1 > /etc/resolv.conf #normalement, maintenant /usr/share/udhcpc/default.script ne passe plus par modif resolv si pattern match regex "p2p-wlan0-"
 
-#compil
+#compil librairie wpa_supplicant: libwpa_client.so
 INCLUDES="-I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils"
 gcc libwpa_connect.c $INCLUDES -lwpa_client
+
+#accepter une demande de connexion venant d'un de mes devices Android, linux en client
+p2p_listen
+p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0 	#Moto Z3 play
+p2p_connect 1a:f0:e4:11:ef:ba pbc go_intent=0 	#Redmi note 4
+p2p_connect 7e:42:6e:7f:a3:da pbc go_intent=0 	#Poco M3
+p2p_connect e2:c3:77:fd:59:5c pbc go_intent=0 	#Galaxy Tab S5e
+
+udhcpc -i p2p-wlan0-
  
 ######## 
+#090122 Recette propre pour NUC en GO, accepter une connexion Android
+
+#Préparation udhcpcd
+cp /initrd/mnt/dev_save/packages/busybox-1.31.1/examples/udhcp/udhcpd.conf /etc/
+	# The start and end of the IP lease block
+	start		192.168.49.20
+	end		192.168.49.254
+	# The interface that udhcpd will use
+	interface p2p-wlan0-?
+mkdir /var/lib/misc/
+touch /var/lib/misc/udhcpd.leases
+
+
+#Création groupe sur le NUC
+wpa_cli -i p2p-dev-wlan0 p2p_group_add
+ls /sys/class/net/ | grep p2p --> modifier interface dans /etc/udhcpd.conf
+
+#Attribution IP interface p2p sur le NUC
+ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.1
+
+#Lancer udhcpd en front pour voir Android demander une IP
+udhcpd -f /etc/udhcpd.conf
+
+#Accepter la connexion qui va arriver
+wpa_cli -i `ls /sys/class/net/ | grep p2p` wps_pbc
+
+#Vérifier que le tel est connecté
+ping 192.168.49.20
+
+
+
+
+
+
+#Déconnecter
+wpa_cli -i `ls /sys/class/net/ | grep p2p` disconnect
+
+#Retirer le groupe si nécessaire
+wpa_cli -i p2p-dev-wlan0 p2p_group_remove `ls /sys/class/net/ | grep p2p`
+
+
+
+
+
 #311221 ssh du NUC vers le zero en p2p
 
 -sysinit du zero (nb: loopback 'lo' pas indispensable)

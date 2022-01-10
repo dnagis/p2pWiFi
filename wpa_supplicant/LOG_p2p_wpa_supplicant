@@ -57,6 +57,12 @@ p2p_connect e2:c3:77:fd:59:5c pbc go_intent=0 	#Galaxy Tab S5e
 udhcpc -i p2p-wlan0-
  
 ######## 
+
+#100122
+Prmiers essais reconnect
+Mot clé du jour: "persistent"
+https://askubuntu.com/questions/892703/creating-persistent-p2p-groups-in-ubuntu
+
 #090122 Recette propre pour NUC en GO, accepter une connexion Android
 
 #Préparation udhcpcd

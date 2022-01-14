@@ -6,6 +6,17 @@ P2P-wifi aka WiFi Direct
 ba:27:eb:92:7c:8f #zero
 9c:b6:d0:17:2c:8f #XPS13
 
+#prépa connexion wpa_supplicant pour Android --> NUC
+
+wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
+ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.1
+modif interface dans /etc/udhcpd.conf
+udhcpd -f /etc/udhcpd.conf
+wpa_cli #pour de l'interactive sur la p2p-wlan0-N (default interface)
+> wps_pbc #sinon n'acceptera pas la demande
+sinon:
+wpa_cli -i `ls /sys/class/net/ | grep p2p` wps_pbc 
+
 
 #connexion pour NUC --> zero
 
@@ -55,6 +66,11 @@ p2p_connect 7e:42:6e:7f:a3:da pbc go_intent=0 	#Poco M3
 p2p_connect e2:c3:77:fd:59:5c pbc go_intent=0 	#Galaxy Tab S5e
 
 udhcpc -i p2p-wlan0-
+ 
+ 
+ 
+ 
+ 
  
 ######## 
 #120122

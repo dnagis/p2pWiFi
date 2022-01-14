@@ -9,6 +9,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
+import android.widget.Toast;
 
 
 public class P2pBroadcastReceiver extends BroadcastReceiver {
@@ -51,6 +52,7 @@ public class P2pBroadcastReceiver extends BroadcastReceiver {
             
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
 			Log.d(P2P_wifi.TAG, "onReceive: P2P connection changed");
+			Toast.makeText(activity, "WIFI_P2P_CONNECTION_CHANGED_ACTION", Toast.LENGTH_SHORT).show();
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
 			Log.d(P2P_wifi.TAG, "onReceive: P2P this device changed");
         }

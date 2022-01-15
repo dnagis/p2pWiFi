@@ -20,14 +20,14 @@ wpa_cli -i `ls /sys/class/net/ | grep p2p` wps_pbc
 
 #connexion pour NUC --> zero
 
--sysinit du zero (nb: loopback 'lo' pas indispensable)
-wpa_cli -i p2p-dev-wlan0 p2p_group_add
+-/bin/wifi du zero (nb: loopback 'lo' pas indispensable)
+wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
 wpa_cli -i p2p-wlan0-0 wps_pbc
 ifconfig p2p-wlan0-0 192.168.49.1
 udhcpd -S /etc/udhcpd.conf #pour Android, pas nécessaire ici (j'ifconfig une IP fixe)
 
 -sur le NUC 
-(< 120 s après démarrage du zero pour wps_pbc???timeout vraiment???)
+(< 120 s après démarrage du zero = timeout wps_pbc)
 (nb: résiste au S2RAM du NUC, comme wlan0)
 
 wpa_cli p2p_connect ba:27:eb:92:7c:8f pbc join

@@ -5,6 +5,18 @@ P2P-wifi aka WiFi Direct
 98:af:65:ce:18:6f #NUC
 ba:27:eb:92:7c:8f #zero
 9c:b6:d0:17:2c:8f #XPS13
+d6:c9:4b:81:c2:73 #Moto Z3 play
+1a:f0:e4:11:ef:ba #Redmi note 4
+
+#Android vers le zero: préparation p2p dans /bin/wifi:
+
+wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
+wpa_cli -i p2p-wlan0-0 wps_pbc
+ifconfig p2p-wlan0-0 192.168.49.1
+udhcpd -S /etc/udhcpd.conf
+
+
+
 
 #prépa connexion wpa_supplicant pour Android --> NUC
 
@@ -18,13 +30,13 @@ sinon:
 wpa_cli -i `ls /sys/class/net/ | grep p2p` wps_pbc 
 
 
-#connexion pour NUC --> zero
+#connexion pour ssh NUC --> zero
 
 -/bin/wifi du zero (nb: loopback 'lo' pas indispensable)
 wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
 wpa_cli -i p2p-wlan0-0 wps_pbc
 ifconfig p2p-wlan0-0 192.168.49.1
-udhcpd -S /etc/udhcpd.conf #pour Android, pas nécessaire ici (j'ifconfig une IP fixe)
+#udhcpd pas nécessaire pour NUC vers zero: j'ifconfig une IP fixe
 
 -sur le NUC 
 (< 120 s après démarrage du zero = timeout wps_pbc)

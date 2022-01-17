@@ -10,6 +10,11 @@
  * Je suis obligé de passer par ces deux callbacks parce que mes essais (peu nombreux certes) de 
  * connecter directement sur une MAC ADDRESS n'ont pas marché, et c'est cohérent avec ce que j'ai lu.
  * 
+ * Pour l'instant ma meilleure manière de savoir si connexion OK:
+ * récupérer un intent WIFI_P2P_CONNECTION_CHANGED_ACTION -> l'extra EXTRA_WIFI_P2P_INFO contient
+ * la boolean groupFormed. Si True je suis pingable (plus de tests à faire pour en être sûr).
+ * Par contre entre le onResume() et le moment où je reçois cette boolean à true je n'ai pas l'information. 
+ * (connexion unknown)
  * 
  * côté linux:
  * wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
@@ -112,8 +117,8 @@ public class P2P_wifi extends Activity implements PeerListListener {
         //sans android.permission.ACCESS_FINE_LOCATION au runtime (pas manifest only), la WifiP2pDeviceList est vide
         //Log.d(TAG, "onPeersAvailable dans P2P_wifi activity et la liste = " + peerList.toString());//plusieurs infos pas seulement MACADDR
         
-        WifiP2pDevice monPeerDevice = peerList.get("98:af:65:ce:18:6f"); //NUC10i7 principal
-        //WifiP2pDevice monPeerDevice = peerList.get("ba:27:eb:92:fc:8f"); //zero
+        //WifiP2pDevice monPeerDevice = peerList.get("98:af:65:ce:18:6f"); //NUC10i7 principal
+        WifiP2pDevice monPeerDevice = peerList.get("ba:27:eb:92:fc:8f"); //zero
         
         if (monPeerDevice != null && monPeerDevice.status == 3) { //le check du status m'évite de passer 200x/s ici (et donc dans manager.connect()
 			Log.d(TAG, "WifiP2pDevice n'est pas null, son status=" + monPeerDevice.status); //au départ: 3

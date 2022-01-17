@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.NetworkInfo;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
@@ -51,8 +52,16 @@ public class P2pBroadcastReceiver extends BroadcastReceiver {
             manager.requestPeers(channel, activity);
             
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
-			Log.d(P2P_wifi.TAG, "onReceive: P2P connection changed");
-			Toast.makeText(activity, "WIFI_P2P_CONNECTION_CHANGED_ACTION", Toast.LENGTH_SHORT).show();
+			//Toast.makeText(activity, "WIFI_P2P_CONNECTION_CHANGED_ACTION", Toast.LENGTH_SHORT).show();
+			final WifiP2pInfo wifiP2pInfo = (WifiP2pInfo)intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_INFO);
+			Log.d(P2P_wifi.TAG, "onReceive: P2P connection changed, wifip2pinfo: " + wifiP2pInfo.toString());
+			//wifiP2pInfo.toString() --> onReceive: wifip2pinfo: groupFormed: true isGroupOwner: false groupOwnerAddress: /192.168.49.1
+			if (wifiP2pInfo.groupFormed) {
+				Log.d(P2P_wifi.TAG, "wifip2pinfo. groupFOrmed = true");
+				Toast.makeText(activity, "groupFOrmed = true", Toast.LENGTH_SHORT).show();
+			}
+			
+			
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
 			Log.d(P2P_wifi.TAG, "onReceive: P2P this device changed");
         }

@@ -55,10 +55,13 @@ public class P2pBroadcastReceiver extends BroadcastReceiver {
 			//Toast.makeText(activity, "WIFI_P2P_CONNECTION_CHANGED_ACTION", Toast.LENGTH_SHORT).show();
 			final WifiP2pInfo wifiP2pInfo = (WifiP2pInfo)intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_INFO);
 			Log.d(P2P_wifi.TAG, "onReceive: P2P connection changed, wifip2pinfo: " + wifiP2pInfo.toString());
-			//wifiP2pInfo.toString() --> onReceive: wifip2pinfo: groupFormed: true isGroupOwner: false groupOwnerAddress: /192.168.49.1
+			/**
+			 * Quand connexion OK je Rx:
+			 * wifiP2pInfo.toString() --> onReceive: wifip2pinfo: groupFormed: true isGroupOwner: false groupOwnerAddress: /192.168.49.1
+			 * */
 			if (wifiP2pInfo.groupFormed) {
-				Log.d(P2P_wifi.TAG, "wifip2pinfo. groupFOrmed = true");
-				Toast.makeText(activity, "groupFOrmed = true", Toast.LENGTH_SHORT).show();
+				Log.d(P2P_wifi.TAG, "wifip2pinfo. groupFormed = true");
+				Toast.makeText(activity, "groupFormed = TRUE", Toast.LENGTH_SHORT).show();
 			}
 			
 			

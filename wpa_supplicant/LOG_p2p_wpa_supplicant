@@ -22,7 +22,7 @@ udhcpd -S /etc/udhcpd.conf
 
 wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
 ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.1
-modif interface dans /etc/udhcpd.conf
+modif interface dans /etc/udhcpd.conf (busybox-1.31.1/examples/udhcp/udhcpd.conf)
 udhcpd -f /etc/udhcpd.conf
 wpa_cli #pour de l'interactive sur la p2p-wlan0-N (default interface)
 > wps_pbc #sinon n'acceptera pas la demande

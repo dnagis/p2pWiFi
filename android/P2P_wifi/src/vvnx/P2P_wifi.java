@@ -32,6 +32,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.content.Context;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -52,6 +53,7 @@ import android.widget.Toast;
 
 public class P2P_wifi extends Activity implements PeerListListener {
 
+        private Button btn_1;
         private WifiP2pManager manager;
         private Channel channel;
         private WifiP2pConfig config;
@@ -66,6 +68,8 @@ public class P2P_wifi extends Activity implements PeerListListener {
 
         View view = getLayoutInflater().inflate(R.layout.P2P_wifi, null);
         setContentView(view);
+        
+        btn_1 = findViewById(R.id.btn_1);
         
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
@@ -141,6 +145,13 @@ public class P2P_wifi extends Activity implements PeerListListener {
 			});
 		}   
     }
+    
+    
+    //bouton start
+    public void ActionPressBouton_1(View v) {
+		Log.d(TAG, "press bouton");		
+	}
+    
  
 }
 

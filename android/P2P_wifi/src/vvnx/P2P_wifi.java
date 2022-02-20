@@ -45,6 +45,11 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.net.wifi.WpsInfo;
+
+import java.net.Socket;
+import java.io.PrintWriter;
+import java.io.IOException;
+
 import android.util.Log;
 import android.widget.Toast;
 
@@ -147,11 +152,22 @@ public class P2P_wifi extends Activity implements PeerListListener {
     }
     
     
-    //bouton start
+    //bouton pour tests
     public void ActionPressBouton_1(View v) {
-		Log.d(TAG, "press bouton");		
+		Log.d(TAG, "press bouton");
+		//Thread sinon android.os.NetworkOnMainThreadException
+		new Thread(new Runnable(){
+		@Override
+			public void run() {	        
+				try {
+			Socket socket = new Socket("5.135.183.126", 5778);
+	        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+	        writer.println("mon message");
+				} catch (IOException e) {
+                    Log.d(TAG, "erreur send socket :" + e.getMessage());
+                } 
+            }
+		}).start();	
 	}
-    
- 
 }
 

@@ -10,7 +10,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
-import android.widget.Toast;
+import android.graphics.Color;
 
 
 public class P2pBroadcastReceiver extends BroadcastReceiver {
@@ -61,7 +61,7 @@ public class P2pBroadcastReceiver extends BroadcastReceiver {
 			 * */
 			if (wifiP2pInfo.groupFormed) {
 				Log.d(P2P_wifi.TAG, "wifip2pinfo. groupFormed = true");
-				Toast.makeText(activity, "groupFormed = TRUE", Toast.LENGTH_SHORT).show();
+				activity.txt_conn.setTextColor(Color.BLUE);				
 			}
 			
 			

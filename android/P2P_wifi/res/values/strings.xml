@@ -17,5 +17,6 @@
 <resources>
 
     <string name="txt_btn_1">BTN_1</string>
+    <string name="lbl_conn">CONNECTED</string>
 
 </resources>

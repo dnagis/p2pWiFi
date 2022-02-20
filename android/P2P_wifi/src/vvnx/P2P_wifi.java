@@ -30,12 +30,14 @@ package vvnx.P2P_wifi;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
+
 import android.view.WindowManager;
+import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
 import android.content.Context;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -59,6 +61,7 @@ import android.widget.Toast;
 public class P2P_wifi extends Activity implements PeerListListener {
 
         private Button btn_1;
+        public TextView txt_conn;
         private WifiP2pManager manager;
         private Channel channel;
         private WifiP2pConfig config;
@@ -75,6 +78,7 @@ public class P2P_wifi extends Activity implements PeerListListener {
         setContentView(view);
         
         btn_1 = findViewById(R.id.btn_1);
+        txt_conn = findViewById(R.id.txt_conn);
         
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);

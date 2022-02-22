@@ -167,6 +167,7 @@ public class P2P_wifi extends Activity implements PeerListListener {
 			Socket socket = new Socket("192.168.49.1", 5778);
 	        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
 	        writer.println("mon message");
+	        socket.close(); //sinon accumulation de connexions peut poser pb socat (address already in use) mais aux tests mainly
 				} catch (IOException e) {
                     Log.d(TAG, "erreur send socket :" + e.getMessage());
                 } 

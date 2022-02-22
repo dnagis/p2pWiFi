@@ -42,8 +42,8 @@ udhcpd -f /etc/udhcpd.conf
 #wpa_cli en interactive  (p2p = default interface) > wps_pbc 
 wpa_cli -i `ls /sys/class/net/ | grep p2p` wps_pbc 
 
-
-
+#Ecouter du socket.getOutputStream() new Socket("192.168.49.1", 5778) envoyé par Android
+socat TCP-LISTEN:5778,fork -
 
 
 ###NUC vers zero pour du ssh

@@ -16,7 +16,7 @@
  * Par contre entre le onResume() et le moment où je reçois cette boolean à true je n'ai pas l'information. 
  * (connexion unknown)
  * 
- * côté linux:
+ * côté linux (voir LOG_p2p_wpa_supplicant):
  * wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
  * ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.1
  * /etc/udhcpd.conf --> adapter le nom de l'interface
@@ -156,7 +156,7 @@ public class P2P_wifi extends Activity implements PeerListListener {
     }
     
     
-    //bouton pour tests
+    //bouton pour tests envoi message sur Socket, Rx avec #socat TCP-LISTEN:5778,fork -
     public void ActionPressBouton_1(View v) {
 		Log.d(TAG, "press bouton");
 		//Thread sinon android.os.NetworkOnMainThreadException
@@ -164,7 +164,7 @@ public class P2P_wifi extends Activity implements PeerListListener {
 		@Override
 			public void run() {	        
 				try {
-			Socket socket = new Socket("5.135.183.126", 5778);
+			Socket socket = new Socket("192.168.49.1", 5778);
 	        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
 	        writer.println("mon message");
 				} catch (IOException e) {

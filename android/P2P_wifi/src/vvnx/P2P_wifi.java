@@ -1,8 +1,9 @@
 /*
- * adb uninstall vvnx.P2P_wifi
- * adb install out/target/product/generic_arm64/system/app/P2P_wifi/P2P_wifi.apk
  * 
- * adb shell pm grant vvnx.P2P_wifi android.permission.ACCESS_FINE_LOCATION
+ * 
+adb uninstall vvnx.P2P_wifi && \
+adb install out/target/product/generic_arm64/system/app/P2P_wifi/P2P_wifi.apk && \
+adb shell pm grant vvnx.P2P_wifi android.permission.ACCESS_FINE_LOCATION
  * 
  * 
  * le point de départ de la connexion = discoverPeers(). Ensuite le broadcastReceiver reçoit
@@ -10,18 +11,11 @@
  * Je suis obligé de passer par ces deux callbacks parce que mes essais (peu nombreux certes) de 
  * connecter directement sur une MAC ADDRESS n'ont pas marché, et c'est cohérent avec ce que j'ai lu.
  * 
- * Pour l'instant ma meilleure manière de savoir si connexion OK:
- * récupérer un intent WIFI_P2P_CONNECTION_CHANGED_ACTION -> l'extra EXTRA_WIFI_P2P_INFO contient
- * la boolean groupFormed. Si True je suis pingable (plus de tests à faire pour en être sûr).
- * Par contre entre le onResume() et le moment où je reçois cette boolean à true je n'ai pas l'information. 
- * (connexion unknown)
+ * Mon feedback de connexion repose sur l'intent WIFI_P2P_CONNECTION_CHANGED_ACTION -> l'extra EXTRA_WIFI_P2P_INFO contient
+ * la boolean groupFormed. Si True je passe le témoin visuel (couleur label) à BLUE, si je reçois false (ce que je Rx au retour
+ * à proximité après éloignement physique du GO) je passe à LTGRAY
  * 
- * côté linux (voir LOG_p2p_wpa_supplicant):
- * wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
- * ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.1
- * /etc/udhcpd.conf --> adapter le nom de l'interface
- * udhcpd -f /etc/udhcpd.conf
- * wpa_cli -i `ls /sys/class/net/ | grep p2p` wps_pbc
+ * Pour P2P côté linux voir LOG_p2p_wpa_supplicant
  * 
  * */
 
@@ -99,7 +93,6 @@ public class P2P_wifi extends Activity implements PeerListListener {
         receiver = new P2pBroadcastReceiver(manager, channel, this);
         registerReceiver(receiver, intentFilter);
         
-        
         Log.d(TAG, "onResume"); 
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
                     @Override
@@ -141,13 +134,13 @@ public class P2P_wifi extends Activity implements PeerListListener {
 			config.wps.setup = WpsInfo.PBC;
 			manager.connect(channel, config, new ActionListener() {
 	            @Override
-	            public void onSuccess() { //pas informatif
+	            public void onSuccess() { //pas informatif sur le statut de la connexion
 					//Log.d(TAG, "connect() --> onSuccess");
 	                //Toast.makeText(P2P_wifi.this, "connect() --> onSuccess", Toast.LENGTH_SHORT).show();
 	            }
 	
 	            @Override
-	            public void onFailure(int reason) { //pas informatif
+	            public void onFailure(int reason) { //pas informatif sur le statut de la connexion
 					//Log.d(TAG, "connect() --> onFailure, reason: " + reason);
 					//Toast.makeText(P2P_wifi.this, "connect() --> onFailure, reason: " + reason, Toast.LENGTH_SHORT).show();
 	            }

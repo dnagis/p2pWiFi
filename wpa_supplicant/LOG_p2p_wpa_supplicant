@@ -34,7 +34,7 @@ touch /var/lib/misc/udhcpd.leases
 wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
 ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.1
 
-#Adapter udhcpd à l'interface p2p-wlan0-N 
+#Adapter udhcpd à l'interface p2p-wlan0-N et lancer udhcpd
 sed -i "s/^interface.*$/interface `ls /sys/class/net/ | grep p2p`/g" /etc/udhcpd.conf
 udhcpd -f /etc/udhcpd.conf
 

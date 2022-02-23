@@ -24,8 +24,7 @@ public class P2pBroadcastReceiver extends BroadcastReceiver {
      * @param channel Wifi p2p channel
      * @param activity activity associated with the receiver
      */
-    public P2pBroadcastReceiver(WifiP2pManager manager, Channel channel,
-            P2P_wifi activity) {
+    public P2pBroadcastReceiver(WifiP2pManager manager, Channel channel, P2P_wifi activity) {
         super();
         this.manager = manager;
         this.channel = channel;
@@ -45,7 +44,7 @@ public class P2pBroadcastReceiver extends BroadcastReceiver {
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             Log.d(P2P_wifi.TAG, "onReceive: P2P peers changed");
            
-            /**Mon activité principale implements PeerListListener et a donc une methode onPeersAvailable()
+            /**Mon activité principale implements PeerListListener et override donc une methode onPeersAvailable()
              * qui va me permettre de récupérer la liste des peers
              * 
              * */
@@ -60,9 +59,12 @@ public class P2pBroadcastReceiver extends BroadcastReceiver {
 			 * wifiP2pInfo.toString() --> onReceive: wifip2pinfo: groupFormed: true isGroupOwner: false groupOwnerAddress: /192.168.49.1
 			 * */
 			if (wifiP2pInfo.groupFormed) {
-				Log.d(P2P_wifi.TAG, "wifip2pinfo. groupFormed = true");
+				Log.d(P2P_wifi.TAG, "wifip2pinfo.groupFormed = true");
 				activity.txt_conn.setTextColor(Color.BLUE);				
-			}
+			} else { //
+				Log.d(P2P_wifi.TAG, "wifip2pinfo.groupFormed = false");
+				activity.txt_conn.setTextColor(Color.LTGRAY);	
+				}
 			
 			
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {

@@ -46,6 +46,9 @@ wpa_cli -i `ls /sys/class/net/ | grep p2p` wps_pbc
 socat TCP-LISTEN:5778,fork -
 
 
+
+
+
 ###NUC vers zero pour du ssh
 
 -/bin/wifi du zero (nb: loopback 'lo' pas indispensable)
@@ -65,7 +68,9 @@ avoir automatiquement l'interface p2p (p2p-wlan0-N):
 ls /sys/class/net/ | grep p2p
 
 
-
+###Plusieurs clients 
+il faut refaire une acceptation wps_pbc pour chaque client (un wps_pbc=1 acceptation d'un seul
+client pendant le timeout (default 120s)).
 
 
 

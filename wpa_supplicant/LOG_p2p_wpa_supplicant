@@ -3,11 +3,20 @@ P2P-wifi aka WiFi Direct
 
 ########MACADDRS
 98:af:65:ce:18:6f #NUC
-ba:27:eb:92:7c:8f #zero
+ba:27:eb:92:7c:8f #zero GdR
+ba:27:eb:ab:f7:a0 #zero Pal
 5a:6d:6b:ae:de:3b #POCO X3 Pro
 d6:c9:4b:81:c2:73 #Moto Z3 play
 1a:f0:e4:11:ef:ba #Redmi note 4
 9c:b6:d0:17:2c:8f #XPS13
+
+###attention pour avoir la bonne MAC ADDR à donner à Android pour qu'il trouve un device:
+#wpa_cli -i p2p-dev-wlan0 status #une seule MACADDR et c'est la bonne
+#avec p2p_find:
+P2P-DEVICE-FOUND ba:27:eb:ab:77:a0 p2p_dev_addr=ba:27:eb:ab:f7:a0 pri_dev_type=0-00000000-0 name='' config_methods=0x1108 dev_capab=0x25 group_capab=0xb vendor_elems=1 new=1
+	-->c'est p2p_dev_addr=ba:27:eb:ab:f7:a0 pas la première
+#avec wpa_cli -i p2p-wlan0-0 status:
+	--> c'est p2p_device_address=ba:27:eb:ab:f7:a0 et pas bssid=ba:27:eb:ab:77:a0
 
 
 

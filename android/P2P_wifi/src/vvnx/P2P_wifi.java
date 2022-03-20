@@ -124,7 +124,11 @@ public class P2P_wifi extends Activity implements PeerListListener {
         //Log.d(TAG, "onPeersAvailable dans P2P_wifi activity et la liste = " + peerList.toString());//plusieurs infos pas seulement MACADDR
         
         //WifiP2pDevice monPeerDevice = peerList.get("98:af:65:ce:18:6f"); //NUC10i7 principal
-        WifiP2pDevice monPeerDevice = peerList.get("ba:27:eb:92:fc:8f"); //zero
+        //WifiP2pDevice monPeerDevice = peerList.get("ba:27:eb:92:fc:8f"); //zero
+        //WifiP2pDevice monPeerDevice = peerList.get("de:a6:32:47:4d:45"); //4 Pal
+        WifiP2pDevice monPeerDevice = peerList.get("ba:27:eb:ab:f7:a0"); //zero Pal
+        
+        if (monPeerDevice == null) Log.d(TAG, "WifiP2pDevice est null**********************");
         
         if (monPeerDevice != null && monPeerDevice.status == 3) { //le check du status m'évite de passer 200x/s ici (et donc dans manager.connect()
 			Log.d(TAG, "WifiP2pDevice n'est pas null, son status=" + monPeerDevice.status); //au départ: 3

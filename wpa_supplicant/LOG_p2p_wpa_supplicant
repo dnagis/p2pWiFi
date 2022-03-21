@@ -10,6 +10,12 @@ d6:c9:4b:81:c2:73 #Moto Z3 play
 1a:f0:e4:11:ef:ba #Redmi note 4
 9c:b6:d0:17:2c:8f #XPS13
 
+########wpa_supplicant.conf 
+il n'y en pas deux (pas un wifi classique et un p2p)
+settings p2p sur le RPi qui fonctionnent:
+device_name=Zero
+
+
 ###attention pour avoir la bonne MAC ADDR à donner à Android pour qu'il trouve un device:
 #wpa_cli -i p2p-dev-wlan0 status #une seule MACADDR et c'est la bonne
 #avec p2p_find:

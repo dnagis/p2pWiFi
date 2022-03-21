@@ -116,6 +116,19 @@ udhcpc -i p2p-wlan0-
  
  
 ######## 
+#210322
+Pour des essais j'utilise le RPi4. Comportement notable:
+wpa_cli >> Selected interface 'p2p-dev-wlan0'
+> p2p_group_add persistent
+OK
+<3>P2P-GROUP-STARTED p2p-wlan0-16 GO ssid="DIRECT-Zt" freq=2462 passphrase="LTE4iaAO" go_dev_addr=de:a6:32:47:4d:45 [PERSISTENT]
+<3>P2P-GROUP-REMOVED p2p-wlan0-16 GO reason=UNAVAILABLE
+
+la réponse est immédiate, et pas de formation de groupe
+la solution trouvée en googlant et qui marche: réessayer plusieurs fois, ça finit par marcher. Moche mais comme c'est pour des tests...
+Le groupe tient au moins sur plusieurs heures par contre
+
+
 #120122
 #essai NUC sans redémarrage sans set persistent_reconnect 1
 wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent

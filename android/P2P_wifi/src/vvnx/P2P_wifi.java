@@ -126,7 +126,8 @@ public class P2P_wifi extends Activity implements PeerListListener {
         //WifiP2pDevice monPeerDevice = peerList.get("98:af:65:ce:18:6f"); //NUC10i7 principal
         //WifiP2pDevice monPeerDevice = peerList.get("ba:27:eb:92:fc:8f"); //zero
         //WifiP2pDevice monPeerDevice = peerList.get("de:a6:32:47:4d:45"); //4 Pal
-        WifiP2pDevice monPeerDevice = peerList.get("ba:27:eb:ab:f7:a0"); //zero Pal
+        //WifiP2pDevice monPeerDevice = peerList.get("ba:27:eb:ab:f7:a0"); //zero Pal
+        WifiP2pDevice monPeerDevice = peerList.get("rpi4");
         
         if (monPeerDevice == null) Log.d(TAG, "WifiP2pDevice est null**********************");
         

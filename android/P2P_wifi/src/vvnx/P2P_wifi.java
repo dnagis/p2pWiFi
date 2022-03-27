@@ -6,10 +6,10 @@ adb install out/target/product/generic_arm64/system/app/P2P_wifi/P2P_wifi.apk &&
 adb shell pm grant vvnx.P2P_wifi android.permission.ACCESS_FINE_LOCATION
  * 
  * 
- * le point de départ de la connexion = discoverPeers(). Ensuite le broadcastReceiver reçoit
- * WIFI_P2P_PEERS_CHANGED_ACTION, d'où je lance requestPeers(), qui déclenche onPeersAvailable(). 
+ * le point de départ de la connexion = discoverPeers(). J'ai plusieurs fois essayé des connect() sans passer par discoverPeers avant (même si device connu, cad reconnexion)
+ * , ça na jamais marché (et cohérent avec ce que j'ai lu). Ensuite le broadcastReceiver reçoit WIFI_P2P_PEERS_CHANGED_ACTION, d'où je lance requestPeers(), qui déclenche onPeersAvailable(). 
  * Je suis obligé de passer par ces deux callbacks parce que mes essais (peu nombreux certes) de 
- * connecter directement sur une MAC ADDRESS n'ont pas marché, et c'est cohérent avec ce que j'ai lu.
+ * 
  * 
  * Mon feedback de connexion repose sur l'intent WIFI_P2P_CONNECTION_CHANGED_ACTION -> l'extra EXTRA_WIFI_P2P_INFO contient
  * la boolean groupFormed. Si True je passe le témoin visuel (couleur label) à BLUE, si je reçois false (ce que je Rx au retour
@@ -29,6 +29,7 @@ import android.view.WindowManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.graphics.Color;
 
 import android.content.Context;
 import android.content.BroadcastReceiver;
@@ -64,10 +65,14 @@ public class P2P_wifi extends Activity implements PeerListListener {
         private WifiP2pManager manager;
         private Channel channel;
         private WifiP2pConfig config;
+        private WifiP2pDevice leRaspberry;
+        
 		public static String TAG = "vvnx";
 		
 		private final IntentFilter intentFilter = new IntentFilter();
 		private BroadcastReceiver receiver = null;
+		
+		
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +83,7 @@ public class P2P_wifi extends Activity implements PeerListListener {
         
         btn_1 = findViewById(R.id.btn_1);
         txt_conn = findViewById(R.id.txt_conn);
+        txt_conn.setTextColor(Color.LTGRAY);
         
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
@@ -97,18 +103,15 @@ public class P2P_wifi extends Activity implements PeerListListener {
         super.onResume();
         receiver = new P2pBroadcastReceiver(manager, channel, this);
         registerReceiver(receiver, intentFilter);
-        
-        Log.d(TAG, "onResume"); 
+                
+        txt_conn.setTextColor(Color.LTGRAY);
+
+        Log.d(TAG, "onResume: on lance discoverPeers"); 
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
                     @Override
-                    public void onSuccess() {
-                        //Toast.makeText(P2P_wifi.this, "Discovery Initiated", Toast.LENGTH_SHORT).show();
-                    }
-
+                    public void onSuccess() {}
                     @Override
-                    public void onFailure(int reasonCode) {
-                        //Toast.makeText(P2P_wifi.this, "Discovery Failed : " + reasonCode, Toast.LENGTH_SHORT).show();
-                    }
+                    public void onFailure(int reasonCode) {}
                 });
         
     }
@@ -131,21 +134,37 @@ public class P2P_wifi extends Activity implements PeerListListener {
         /**
          * Au début je récupérais par mac addr, et il fallait que je vérifie si null ET le status:
          * WifiP2pDevice monPeerDevice = peerList.get("ba:27:eb:92:fc:8f"); //zero
-         * if (monPeerDevice != null && monPeerDevice.status == 3) { //sans check du status je passe 200x/s ici (et donc dans manager.connect()) et ça fait planter connexion
+         * if (monPeerDevice != null && monPeerDevice.status == 3) { //
          * 
-         * Depuis mars 2022 je cherche le peer par deviceName dans la WifiP2pDeviceList que j'iterate avec getDeviceList().
+         * Depuis mars 2022 j'iterate avec getDeviceList() dans la peerList et je recup par deviceName
          * Pour attribuer le name côté linux c'est: wpa_supplicant.conf: syntaxe: device_name=Zero
          * 
          * */
 		
-        for (WifiP2pDevice monPeerDevice : peerList.getDeviceList()) {			
-			//Log.d(TAG, "name:" + monPeerDevice.deviceName);
-			
-			if (monPeerDevice.deviceName.equals("Zero")) {
-			config = new WifiP2pConfig();
-			config.deviceAddress = monPeerDevice.deviceAddress;
-			config.wps.setup = WpsInfo.PBC;
-				manager.connect(channel, config, new ActionListener() {
+        for (WifiP2pDevice unPeer : peerList.getDeviceList()) {			
+			//on vient de trouver un device avec nom=zero
+			//sans check du status (3 = AVAILABLE) je passe 200x/s ici (et donc dans manager.connect()) et le manager a pas l'air d'aimer 
+			//doc status: https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pDevice#constants_1
+			if (unPeer.deviceName.equals("Zero") && unPeer.status == 3) {	
+				Log.d(TAG, "Dans la peerList on a un Zero avec status = " + unPeer.status);
+				
+				if (leRaspberry == null) {
+					Log.d(TAG, "Première fois qu on voit le raspberry, on configure connexion");
+					leRaspberry = unPeer;
+					config = new WifiP2pConfig();
+					config.deviceAddress = leRaspberry.deviceAddress;
+					config.wps.setup = WpsInfo.PBC;
+					} 
+				
+				Connect();				
+				}		
+		}
+ 
+    }
+    
+    public void Connect() {
+		Log.d(TAG, "On lance un manager.connect()");
+		manager.connect(channel, config, new ActionListener() {
 		            @Override
 		            public void onSuccess() { //pas informatif sur le statut de la connexion
 						//Log.d(TAG, "connect() --> onSuccess");
@@ -158,10 +177,7 @@ public class P2P_wifi extends Activity implements PeerListListener {
 						//Toast.makeText(P2P_wifi.this, "connect() --> onFailure, reason: " + reason, Toast.LENGTH_SHORT).show();
 		            }
 				});	
-			}
-		}
- 
-    }
+	}
     
     
     /**bouton pour tests envoi messages (datetime) sur Socket, Rx avec:

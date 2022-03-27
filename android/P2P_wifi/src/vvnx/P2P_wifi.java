@@ -164,20 +164,23 @@ public class P2P_wifi extends Activity implements PeerListListener {
     }
     
     
-    //bouton pour tests envoi message sur Socket, Rx avec #socat TCP-LISTEN:5778,fork -
+    /**bouton pour tests envoi messages (datetime) sur Socket, Rx avec:
+    socat TCP-LISTEN:4696,fork EXEC:/root/myscript.sh & (dans le sysinit, voir RPiMonActivity.java)
+    ou pour des tests, plus simple:
+    socat TCP-LISTEN:4696,fork -
+    * */
+    
     public void ActionPressBouton_1(View v) {
 		
-		Log.d(TAG, "press bouton");
-		//DateTime
+		//Récup DateTime
 		ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("Europe/Paris"));
 		String maTimePattern = "dd/MM HH:mm:ss"; //https://developer.android.com/reference/java/time/format/DateTimeFormatter#patterns 
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(maTimePattern);
 		String maDateTime = zdt.format(dtf);
-		Log.d(TAG, "datetime = " + maDateTime);
 		
+		Log.d(TAG, "press bouton, datetime = " + maDateTime);
 		
-		
-		//Thread sinon android.os.NetworkOnMainThreadException
+		//Envoi via socket sur une IP, dans un Thread sinon android.os.NetworkOnMainThreadException
 		new Thread(new Runnable(){
 		@Override
 			public void run() {	        

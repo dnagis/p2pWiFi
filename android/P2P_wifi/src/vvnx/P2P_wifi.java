@@ -49,6 +49,11 @@ import java.io.IOException;
 import android.util.Log;
 import android.widget.Toast;
 
+//DateTime
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 
 
 
@@ -161,7 +166,17 @@ public class P2P_wifi extends Activity implements PeerListListener {
     
     //bouton pour tests envoi message sur Socket, Rx avec #socat TCP-LISTEN:5778,fork -
     public void ActionPressBouton_1(View v) {
+		
 		Log.d(TAG, "press bouton");
+		//DateTime
+		ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("Europe/Paris"));
+		String maTimePattern = "dd/MM HH:mm:ss"; //https://developer.android.com/reference/java/time/format/DateTimeFormatter#patterns 
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(maTimePattern);
+		String maDateTime = zdt.format(dtf);
+		Log.d(TAG, "datetime = " + maDateTime);
+		
+		
+		
 		//Thread sinon android.os.NetworkOnMainThreadException
 		new Thread(new Runnable(){
 		@Override

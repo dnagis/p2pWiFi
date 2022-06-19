@@ -77,7 +77,8 @@ ifconfig p2p-wlan0-0 192.168.49.1
 (< 120 s après démarrage du zero = timeout wps_pbc)
 (nb: résiste au S2RAM du NUC, comme wlan0)
 
-wpa_cli p2p_connect ba:27:eb:92:7c:8f pbc join
+wpa_cli p2p_connect ba:27:eb:ab:f7:a0 pbc join #Pal
+wpa_cli p2p_connect ba:27:eb:92:7c:8f pbc join #Grau
 ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.2
 
 avoir automatiquement l'interface p2p (p2p-wlan0-N):

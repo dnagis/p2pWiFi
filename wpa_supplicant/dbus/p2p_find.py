@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-#accès à wpa_supplicant via dbus-python. 
-#Lance listen en P2P et Rx les signaux deviceFound / deviceLost
+#Accès à wpa_supplicant via dbus-python. 
+#Lance un P2P_listen et Rx les signaux deviceFound / deviceLost
 #wpa_supplicant-2.9/wpa_supplicant/examples/p2p/p2p_find.py
 #mais avec un loop qui ne laisse mes CPU tranquilles (voir fichier à côté: simple_loop.py)
+#Dbus wpa_supplicant API reference: "wpa_supplicant D-Bus API" 
 
 
 import dbus
@@ -21,8 +22,10 @@ def sigint_handler(sig, frame):
 def deviceFound(devicepath):
 	print("Device found: %s" % (devicepath))
 	peer_found = bus.get_object("fi.w1.wpa_supplicant1", devicepath)
-	macpeer = peer_found.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceAddress', dbus_interface=dbus.PROPERTIES_IFACE)
-	print("adresse mac = %s" % macpeer)
+	#https://w1.fi/wpa_supplicant/devel/dbus.html#dbus_peer
+	peer_macaddr = peer_found.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceAddress', dbus_interface=dbus.PROPERTIES_IFACE)
+	peer_name = peer_found.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceName', dbus_interface=dbus.PROPERTIES_IFACE)
+	print("adresse mac = " , peer_macaddr, " name = ", peer_name)
 	
 def deviceLost(devicepath):
 	print("Device lost: %s" % (devicepath))

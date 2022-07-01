@@ -17,19 +17,22 @@ def sigint_handler(sig, frame):
 
 
 
-#Callback
+#Callback device found, si DeviceName = "Zero" --> Connect
 def deviceFound(devicepath):
 	print("Device found: %s" % (devicepath))
 	peer_found = bus.get_object("fi.w1.wpa_supplicant1", devicepath)
 	peer_macaddr = peer_found.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceAddress', dbus_interface=dbus.PROPERTIES_IFACE)
 	peer_name = peer_found.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceName', dbus_interface=dbus.PROPERTIES_IFACE)
-	print("adresse mac = " , peer_macaddr, " name = ", peer_name)
+	print("DeviceName = ", peer_name)
 	if(peer_name == "Zero"):
 		print("Device Zero found on tente connection")
+		#wpa_cli p2p_connect <BA_ADDR> pbc join
 		#connect: https://w1.fi/wpa_supplicant/devel/dbus.html fi.w1.wpa_supplicant1.Interface.P2PDevice Methods
 		p2p_connect_arguments = dbus.Dictionary({'wps_method':'pbc','peer':peer_found,'join':True})
 		p2p_interface.Connect(p2p_connect_arguments)
-	
+
+def groupStarted(properties):
+	print("signal dbus GroupStarted")	
 
 
 if __name__ == '__main__':
@@ -55,9 +58,11 @@ if __name__ == '__main__':
 	
 	#enregistrement callback pour les signaux dbus
 	bus.add_signal_receiver(deviceFound,dbus_interface=wpas_dbus_interfaces_p2pdevice,signal_name="DeviceFound")
+	bus.add_signal_receiver(groupStarted,dbus_interface=wpas_dbus_interfaces_p2pdevice,signal_name="GroupStarted")
 	
 	P2PFindDict = dbus.Dictionary({'Timeout':int(30)})
 	p2p_interface.Find(P2PFindDict)
+	print("P2P Find lancé")
 	
 	#On lance un loop 
 	signal.signal(signal.SIGINT, sigint_handler)

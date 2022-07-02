@@ -7,6 +7,7 @@ import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 import signal
+import time
 
 def sigint_handler(sig, frame):
     if sig == signal.SIGINT:
@@ -25,14 +26,16 @@ def deviceFound(devicepath):
 	peer_name = peer_found.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceName', dbus_interface=dbus.PROPERTIES_IFACE)
 	print("DeviceName = ", peer_name)
 	if(peer_name == "Zero"):
-		print("Device Zero found on tente connection")
+		print("\033[1;32mDevice Zero found on tente connection\033[0;39m")
 		#wpa_cli p2p_connect <BA_ADDR> pbc join
 		#connect: https://w1.fi/wpa_supplicant/devel/dbus.html fi.w1.wpa_supplicant1.Interface.P2PDevice Methods
 		p2p_connect_arguments = dbus.Dictionary({'wps_method':'pbc','peer':peer_found,'join':True})
 		p2p_interface.Connect(p2p_connect_arguments)
 
 def groupStarted(properties):
-	print("signal dbus GroupStarted")	
+	print("\033[1;32msignal dbus GroupStarted, GoodBye...\033[0;39m")
+	time.sleep(3)
+	loop.quit()
 
 
 if __name__ == '__main__':

@@ -10,6 +10,33 @@ d6:c9:4b:81:c2:73 #Moto Z3 play
 1a:f0:e4:11:ef:ba #Redmi note 4
 9c:b6:d0:17:2c:8f #XPS13
 
+###NUC vers RPi (pour ssh)
+
+-/bin/wifi du zero (nb: loopback 'lo' pas indispensable)
+wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
+wpa_cli -i p2p-wlan0-0 wps_pbc
+ifconfig p2p-wlan0-0 192.168.49.1
+#udhcpd pas nécessaire pour NUC vers zero: j'ifconfig une IP fixe
+
+-sur le NUC (< 120 s après démarrage du zero = default timeout wps_pbc, nb: résiste au S2RAM du NUC, comme wlan0):
+
+wpa_cli p2p_connect ba:27:eb:ab:f7:a0 pbc join #Pal
+wpa_cli p2p_connect ba:27:eb:92:7c:8f pbc join #Grau
+ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.2
+
+J'automatise en permettant une connexion par deviceName: p2pWiFi/wpa_supplicant/dbus/p2p_connect_zero.py,
+la configuration de l'interface p2p-wlan0-N obtenue se fait par action_script:
+sysinit:
+	wpa_cli -a /usr/share/wpa_action_scripts/wpa_action_p2p.sh -B
+	(l'astuce en ne précisant pas -i p2p-dev-wlan0 c'est que p2p-dev-wlan0 est l'interface par défaut)
+wpa_action_p2p.sh (core.sfs): if [ "$2" = "P2P-GROUP-STARTED" ]; --> ifconfig $3(i.e. p2p-wlan0-N) 192.168.49.2 
+
+
+
+
+
+
+
 ########wpa_supplicant.conf 
 il n'y en pas deux (pas un wifi classique et un p2p)
 settings p2p sur le RPi qui fonctionnent:
@@ -35,10 +62,6 @@ ifconfig p2p-wlan0-0 192.168.49.1
 udhcpd -S /etc/udhcpd.conf
 
 
-
-
-
-
 ###Android vers NUC: préparation p2p
 
 #Préparer udhcpd (une seule fois)
@@ -60,29 +83,6 @@ wpa_cli -i `ls /sys/class/net/ | grep p2p` wps_pbc
 
 #Ecouter du socket.getOutputStream() new Socket("192.168.49.1", 5778) envoyé par Android
 socat TCP-LISTEN:5778,fork -
-
-
-
-
-
-###NUC vers zero pour du ssh
-
--/bin/wifi du zero (nb: loopback 'lo' pas indispensable)
-wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
-wpa_cli -i p2p-wlan0-0 wps_pbc
-ifconfig p2p-wlan0-0 192.168.49.1
-#udhcpd pas nécessaire pour NUC vers zero: j'ifconfig une IP fixe
-
--sur le NUC 
-(< 120 s après démarrage du zero = timeout wps_pbc)
-(nb: résiste au S2RAM du NUC, comme wlan0)
-
-wpa_cli p2p_connect ba:27:eb:ab:f7:a0 pbc join #Pal
-wpa_cli p2p_connect ba:27:eb:92:7c:8f pbc join #Grau
-ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.2
-
-avoir automatiquement l'interface p2p (p2p-wlan0-N):
-ls /sys/class/net/ | grep p2p
 
 
 ###Plusieurs clients 

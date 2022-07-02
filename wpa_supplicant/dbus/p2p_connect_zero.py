@@ -7,7 +7,7 @@ import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 import signal
-import time
+
 
 def sigint_handler(sig, frame):
     if sig == signal.SIGINT:
@@ -34,7 +34,6 @@ def deviceFound(devicepath):
 
 def groupStarted(properties):
 	print("\033[1;32msignal dbus GroupStarted, GoodBye...\033[0;39m")
-	time.sleep(3)
 	loop.quit()
 
 

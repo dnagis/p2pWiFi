@@ -4,18 +4,29 @@
 adb uninstall vvnx.P2P_wifi && \
 adb install out/target/product/generic_arm64/system/app/P2P_wifi/P2P_wifi.apk && \
 adb shell pm grant vvnx.P2P_wifi android.permission.ACCESS_FINE_LOCATION
- * 
+* 
+* 
+ * Pour P2P côté linux voir LOG_p2p_wpa_supplicant 
  * 
  * le point de départ de la connexion = discoverPeers(). J'ai plusieurs fois essayé des connect() sans passer par discoverPeers avant (même si device connu, cad reconnexion)
  * , ça na jamais marché (et cohérent avec ce que j'ai lu). Ensuite le broadcastReceiver reçoit WIFI_P2P_PEERS_CHANGED_ACTION, d'où je lance requestPeers(), qui déclenche onPeersAvailable(). 
- * Je suis obligé de passer par ces deux callbacks parce que mes essais (peu nombreux certes) de 
+ * Je suis obligé de passer par ces deux callbacks
  * 
  * 
  * Mon feedback de connexion repose sur l'intent WIFI_P2P_CONNECTION_CHANGED_ACTION -> l'extra EXTRA_WIFI_P2P_INFO contient
  * la boolean groupFormed. Si True je passe le témoin visuel (couleur label) à BLUE, si je reçois false (ce que je Rx au retour
  * à proximité après éloignement physique du GO) je passe à LTGRAY
  * 
- * Pour P2P côté linux voir LOG_p2p_wpa_supplicant
+ * septembre 2022: je veux améliorer l'information connexion status au on_resume
+ * 
+ * hypothèse1: android.net.wifi.p2p.WifiP2pDevice.
+ * Au on_resume: le WifiP2pDevice est null la première fois, ensuite il est toujours non NULL et = à 3 (Available) quelle que soit la connexion
+ * 
+ * 
+ * en adb shell: dumpsys wifip2p
+ * 
+ * hypothèse 2: avoir des infos en demandant au system service wifip2p via java
+
  * 
  * */
 
@@ -101,12 +112,19 @@ public class P2P_wifi extends Activity implements PeerListListener {
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume"); 
+        if (leRaspberry == null) { 
+			Log.d(TAG, "onResume: WifiP2pDevice leRaspberry est null"); 
+		} else {
+			Log.d(TAG, "onResume: WifiP2pDevice leRaspberry n est pas null, son status = "  + leRaspberry.status );
+		} 
+        
         receiver = new P2pBroadcastReceiver(manager, channel, this);
         registerReceiver(receiver, intentFilter);
                 
-        txt_conn.setTextColor(Color.LTGRAY);
+        //txt_conn.setTextColor(Color.LTGRAY);
 
-        Log.d(TAG, "onResume: on lance discoverPeers"); 
+        
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
                     @Override
                     public void onSuccess() {}
@@ -149,7 +167,7 @@ public class P2P_wifi extends Activity implements PeerListListener {
 				Log.d(TAG, "Dans la peerList on a un Zero avec status = " + unPeer.status);
 				
 				if (leRaspberry == null) {
-					Log.d(TAG, "Première fois qu on voit le raspberry, on configure connexion");
+					Log.d(TAG, "dans onPeersAvailable(): première fois qu on voit le raspberry, on configure connexion + Connect()");
 					leRaspberry = unPeer;
 					config = new WifiP2pConfig();
 					config.deviceAddress = leRaspberry.deviceAddress;

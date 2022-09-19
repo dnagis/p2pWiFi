@@ -177,7 +177,8 @@ public class P2P_wifi extends Activity implements PeerListListener {
 			//on vient de trouver un device avec nom=zero
 			//sans check du status (3 = AVAILABLE) je passe 200x/s ici (et donc dans manager.connect()) et le manager a pas l'air d'aimer 
 			//doc status: https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pDevice#constants_1
-			if (unPeer.deviceName.equals("Zero") && unPeer.status == 3) {	
+			//if (unPeer.deviceName.equals("Zero") && unPeer.status == 3) {
+			if (unPeer.deviceName.equals("NUC") && unPeer.status == 3) {	
 				Log.d(TAG, "Dans la peerList on a un Zero avec status = " + unPeer.status);
 				
 				if (leRaspberry == null) {

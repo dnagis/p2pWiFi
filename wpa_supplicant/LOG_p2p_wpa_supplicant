@@ -77,7 +77,7 @@ ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.1
 
 #Adapter udhcpd à l'interface p2p-wlan0-N et lancer udhcpd
 sed -i "s/^interface.*$/interface `ls /sys/class/net/ | grep p2p`/g" /etc/udhcpd.conf
-udhcpd -f /etc/udhcpd.conf
+udhcpd -f /etc/udhcpd.conf #-S: syslog, -f pour foreground (voir la connexion)
 
 #Autoriser les demandes de connexion sur p2p-wlan0-N par méthode wps_pbc (default timeout: 120s)
 wpa_cli -i `ls /sys/class/net/ | grep p2p` wps_pbc 

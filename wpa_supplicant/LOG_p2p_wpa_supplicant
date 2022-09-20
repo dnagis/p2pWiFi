@@ -65,7 +65,9 @@ udhcpd -S /etc/udhcpd.conf
 ###Android vers NUC: préparation p2p
 
 #Préparer udhcpd (une seule fois)
-copier busybox-1.31.1/examples/udhcp/udhcpd.conf dans /etc/
+copier busybox-1.31.1/examples/udhcp/udhcpd.conf dans /etc/ #***ATTENTION*** 
+	# j'ai un doute sur la nécessité de modifier: 
+	#The start and end of the IP lease block \nstart		192.168.49.20\nend		192.168.49.254
 mkdir -p /var/lib/misc/
 touch /var/lib/misc/udhcpd.leases
 
@@ -77,8 +79,7 @@ ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.1
 sed -i "s/^interface.*$/interface `ls /sys/class/net/ | grep p2p`/g" /etc/udhcpd.conf
 udhcpd -f /etc/udhcpd.conf
 
-#autoriser les demandes de connexion sur p2p-wlan0-N 
-#wpa_cli en interactive  (p2p = default interface) > wps_pbc 
+#Autoriser les demandes de connexion sur p2p-wlan0-N par méthode wps_pbc (default timeout: 120s)
 wpa_cli -i `ls /sys/class/net/ | grep p2p` wps_pbc 
 
 #Ecouter du socket.getOutputStream() new Socket("192.168.49.1", 4696) envoyé par Android

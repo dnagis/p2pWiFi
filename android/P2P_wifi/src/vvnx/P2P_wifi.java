@@ -17,22 +17,35 @@ adb shell pm grant vvnx.P2P_wifi android.permission.ACCESS_FINE_LOCATION
  * la boolean groupFormed. Si True je passe le témoin visuel (couleur label) à BLUE, si je reçois false (ce que je Rx au retour
  * à proximité après éloignement physique du GO) je passe à LTGRAY
  * 
- * septembre 2022: je veux améliorer l'information connexion status au on_resume
+ * ******Septembre 2022: je veux améliorer l'information connexion status dans on_resume()
  * 
- * hypothèse1: android.net.wifi.p2p.WifiP2pDevice.
+ * -Hypothèse 1: android.net.wifi.p2p.WifiP2pDevice.
  * Au on_resume: le WifiP2pDevice est null la première fois, ensuite il est toujours non NULL et = à 3 (Available) quelle que soit la connexion
+ * --> Donc pas informatif
 
  * en adb shell: dumpsys wifip2p
  * 
- * hypothèse 2: avoir des infos en demandant au system service WifiP2pManager
+ * -Hypothèse 2: avoir des infos en demandant au system service WifiP2pManager
  * https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager --> methodes
- * avec manager.requestGroupInfo() je ne recois qu'une liste vide mais ce serait normal puisque je ne suis pas le Group Owner
+ * 
+ * 2.1 - manager.requestGroupInfo() je ne recois qu'une liste vide mais ce serait normal puisque je ne suis pas le Group Owner
  * onReceive: P2P connection changed, wifip2pinfo: groupFormed: true isGroupOwner: false groupOwnerAddress: /192.168.49.1
  * 
  * Problème: si switche d'appli (hello_video) entre temps: au retour ici la boolean first time a été reset, et donc bien que la connexion soit
  * toujours là je suppose (comment le savoir???), l'appli a été redémarrée. 
  * Donc:
  * -Si je me connecte au NUC, est ce que je peux vérifier si quand l'appli passe en background la connexion p2p est rompue ou pas?
+ * --> connexion Android - NUC: howto dans le LOG_p2p_wpa_supplicant
+ * 
+ * 2.2 - manager.onConnectionInfoAvailable()
+ * -J'ai l'info immédiatement. 
+ * Avant première connexion j'ai: 
+ * 		"groupFormed: false isGroupOwner: false groupOwnerAddress: null"
+ * Après connexion, avec vérification connexion par socket send msg j'ai:
+ * 		"groupFormed: true isGroupOwner: false groupOwnerAddress: /192.168.49.1"
+ * Après déconnexion par le NUC avec wpa_cli -i p2p-dev-wlan0 p2p_group_remove `ls /sys/class/net/ | grep p2p` --> j'ai:
+ * 		"groupFormed: false isGroupOwner: false groupOwnerAddress: null"
+ * 
  * 
  * */
 
@@ -59,6 +72,7 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.net.wifi.p2p.WifiP2pGroup;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.WpsInfo;
 
 import java.net.Socket;
@@ -125,22 +139,31 @@ public class P2P_wifi extends Activity implements PeerListListener {
         //txt_conn.setTextColor(Color.LTGRAY); 
                
         if ( ! first_time) { 
-			Log.d(TAG, "boolean first_time = default (false) donc premier passage"); 
-			first_time = true;
-			receiver = new P2pBroadcastReceiver(manager, channel, this);
-			registerReceiver(receiver, intentFilter); 
-			
-			manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-					@Override
-					public void onSuccess() {}
-					@Override
-					public void onFailure(int reasonCode) {}
-				});			
-		
+			Log.d(TAG, "boolean first_time = default (false) donc premier passage dans onResume()"); 
+			first_time = true;		
 		} else {
-			Log.d(TAG, "boolean first_time = true donc au moins deuxième passage");
-
+			Log.d(TAG, "boolean first_time = true donc au moins deuxième passage dans onResume()");
 		}
+		
+		receiver = new P2pBroadcastReceiver(manager, channel, this);
+		registerReceiver(receiver, intentFilter); 
+		
+		manager.requestConnectionInfo(channel, new WifiP2pManager.ConnectionInfoListener() {
+				@Override
+				public void onConnectionInfoAvailable(WifiP2pInfo info) {
+					Log.d(TAG, "onResume(): onConnectionInfoAvailable, wifip2pinfo: " + info.toString()); 
+					}
+			});	
+		
+		
+		
+		
+		manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
+				@Override
+				public void onSuccess() {}
+				@Override
+				public void onFailure(int reasonCode) {}
+			});	
 		
 		 
         

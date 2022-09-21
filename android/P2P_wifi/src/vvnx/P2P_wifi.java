@@ -37,7 +37,7 @@ adb shell pm grant vvnx.P2P_wifi android.permission.ACCESS_FINE_LOCATION
  * -Si je me connecte au NUC, est ce que je peux vérifier si quand l'appli passe en background la connexion p2p est rompue ou pas?
  * --> connexion Android - NUC: howto dans le LOG_p2p_wpa_supplicant
  * 
- * 2.2 - manager.onConnectionInfoAvailable()
+ * 2.2 - WifiP2pManager.requestConnectionInfo()
  * -J'ai l'info immédiatement. 
  * Avant première connexion j'ai: 
  * 		"groupFormed: false isGroupOwner: false groupOwnerAddress: null"
@@ -45,7 +45,7 @@ adb shell pm grant vvnx.P2P_wifi android.permission.ACCESS_FINE_LOCATION
  * 		"groupFormed: true isGroupOwner: false groupOwnerAddress: /192.168.49.1"
  * Après déconnexion par le NUC avec wpa_cli -i p2p-dev-wlan0 p2p_group_remove `ls /sys/class/net/ | grep p2p` --> j'ai:
  * 		"groupFormed: false isGroupOwner: false groupOwnerAddress: null"
- * 
+ * --> donc semble informatif sur le status de la connexion
  * 
  * */
 
@@ -136,34 +136,52 @@ public class P2P_wifi extends Activity implements PeerListListener {
         super.onResume();
         Log.d(TAG, "onResume"); 
         
-        //txt_conn.setTextColor(Color.LTGRAY); 
-               
+        
+        //register broadcast receiver, seulement si c'est la première fois qu'on passe ici, ce serait peut être mieux de checker si le receiver est null?      
         if ( ! first_time) { 
-			Log.d(TAG, "boolean first_time = default (false) donc premier passage dans onResume()"); 
+			Log.d(TAG, "boolean first_time = default (false) donc premier passage dans onResume(), on crée un receiver et on le register");
+			receiver = new P2pBroadcastReceiver(manager, channel, this);
+			registerReceiver(receiver, intentFilter); 
 			first_time = true;		
 		} else {
 			Log.d(TAG, "boolean first_time = true donc au moins deuxième passage dans onResume()");
 		}
 		
-		receiver = new P2pBroadcastReceiver(manager, channel, this);
-		registerReceiver(receiver, intentFilter); 
+ 
 		
+		//check connexion
 		manager.requestConnectionInfo(channel, new WifiP2pManager.ConnectionInfoListener() {
 				@Override
 				public void onConnectionInfoAvailable(WifiP2pInfo info) {
 					Log.d(TAG, "onResume(): onConnectionInfoAvailable, wifip2pinfo: " + info.toString()); 
+					 if ( info.groupFormed) { 
+						Log.d(TAG, "onResume(): boolean info.groupFormed = true donc on a déjà une connexion"); 
+						txt_conn.setTextColor(Color.BLUE);
+						} 
+						
+						else 
+						
+						{
+						Log.d(TAG, "onResume(): boolean info.groupFormed = false donc pas de connexion, on lance discoverPeers()");
+						txt_conn.setTextColor(Color.LTGRAY);
+						manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
+							@Override
+							public void onSuccess() {}
+							@Override
+							public void onFailure(int reasonCode) {}
+						});	
+						
+						
+						
+						 
+						}				
 					}
 			});	
 		
 		
 		
 		
-		manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-				@Override
-				public void onSuccess() {}
-				@Override
-				public void onFailure(int reasonCode) {}
-			});	
+
 		
 		 
         
@@ -201,8 +219,8 @@ public class P2P_wifi extends Activity implements PeerListListener {
 			//sans check du status (3 = AVAILABLE) je passe 200x/s ici (et donc dans manager.connect()) et le manager a pas l'air d'aimer 
 			//doc status: https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pDevice#constants_1
 			//if (unPeer.deviceName.equals("Zero") && unPeer.status == 3) {
-			if (unPeer.deviceName.equals("NUC") && unPeer.status == 3) {	
-				Log.d(TAG, "Dans la peerList on a un Zero avec status = " + unPeer.status);
+			if ((unPeer.deviceName.equals("NUC") || unPeer.deviceName.equals("Zero")) && unPeer.status == 3) {	
+				Log.d(TAG, "Dans la peerList on a un Peer dont name matche avec status = " + unPeer.status);
 				
 				if (leRaspberry == null) {
 					Log.d(TAG, "dans onPeersAvailable(): première fois qu on voit le raspberry, on configure connexion + Connect()");

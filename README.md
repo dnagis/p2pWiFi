@@ -1,8 +1,8 @@
-# WiFi P2P / Direct
+# WiFi P2P alias WiFi Direct
 
 # wpa_supplicant
 	côté linux
 
 # android
-	côté tel: samples/WiFiDirectDemo simplifié à l'extrême
+	côté tel: basé sur samples/WiFiDirectDemo
 

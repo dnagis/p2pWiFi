@@ -8,16 +8,25 @@ adb shell pm grant vvnx.P2P_wifi android.permission.ACCESS_FINE_LOCATION
 * 
  * Pour P2P côté linux voir LOG_p2p_wpa_supplicant 
  * 
+ * ###Première phase: primo-connexion
+ * 
  * le point de départ de la connexion = discoverPeers(). J'ai plusieurs fois essayé des connect() sans passer par discoverPeers avant (même si device connu, cad reconnexion)
  * , ça na jamais marché (et cohérent avec ce que j'ai lu). Ensuite le broadcastReceiver reçoit WIFI_P2P_PEERS_CHANGED_ACTION, d'où je lance requestPeers(), qui déclenche onPeersAvailable(). 
  * Je suis obligé de passer par ces deux callbacks
- * 
- * 
- * Mon feedback de connexion repose sur l'intent WIFI_P2P_CONNECTION_CHANGED_ACTION -> l'extra EXTRA_WIFI_P2P_INFO contient
+ *  
+ * Mon feedback de primo-connexion repose sur l'intent WIFI_P2P_CONNECTION_CHANGED_ACTION -> l'extra EXTRA_WIFI_P2P_INFO contient
  * la boolean groupFormed. Si True je passe le témoin visuel (couleur label) à BLUE, si je reçois false (ce que je Rx au retour
  * à proximité après éloignement physique du GO) je passe à LTGRAY
  * 
- * ******Septembre 2022: je veux améliorer l'information connexion status dans on_resume()
+ * ###Deuxième phase (Septembre 2022): Information connexion status inconnue ==> gros moments de solitude quand je suis sur site
+ * 
+ * Lifecycle Android; je souhaite avoir  l'info dans on_resume()
+ * 
+ * Problème: En vérifiant avec une variable boolean si c'est la première fois que je passe dans on_resume(), si je switche d'appli (hello_video) pour voir le retour
+ * video, au retour ici la boolean first time a été reset, et donc bien que la connexion soit toujours là je suppose (comment le savoir???), l'appli a été redémarrée.
+ * 
+ * Pour être capable de vérifier le connexion statue j'utilise le NUC comme peer
+ * --> connexion Android - NUC: howto dans le LOG_p2p_wpa_supplicant
  * 
  * -Hypothèse 1: android.net.wifi.p2p.WifiP2pDevice.
  * Au on_resume: le WifiP2pDevice est null la première fois, ensuite il est toujours non NULL et = à 3 (Available) quelle que soit la connexion
@@ -28,24 +37,20 @@ adb shell pm grant vvnx.P2P_wifi android.permission.ACCESS_FINE_LOCATION
  * -Hypothèse 2: avoir des infos en demandant au system service WifiP2pManager
  * https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pManager --> methodes
  * 
- * 2.1 - manager.requestGroupInfo() je ne recois qu'une liste vide mais ce serait normal puisque je ne suis pas le Group Owner
- * onReceive: P2P connection changed, wifip2pinfo: groupFormed: true isGroupOwner: false groupOwnerAddress: /192.168.49.1
- * 
- * Problème: si switche d'appli (hello_video) entre temps: au retour ici la boolean first time a été reset, et donc bien que la connexion soit
- * toujours là je suppose (comment le savoir???), l'appli a été redémarrée. 
- * Donc:
- * -Si je me connecte au NUC, est ce que je peux vérifier si quand l'appli passe en background la connexion p2p est rompue ou pas?
- * --> connexion Android - NUC: howto dans le LOG_p2p_wpa_supplicant
- * 
+ * 2.1 - WifiP2pManager.requestGroupInfo() je ne recois qu'une liste vide mais ce serait normal puisque je ne suis pas le Group Owner
+ *  
  * 2.2 - WifiP2pManager.requestConnectionInfo()
  * -J'ai l'info immédiatement. 
+ * 
  * Avant première connexion j'ai: 
  * 		"groupFormed: false isGroupOwner: false groupOwnerAddress: null"
  * Après connexion, avec vérification connexion par socket send msg j'ai:
  * 		"groupFormed: true isGroupOwner: false groupOwnerAddress: /192.168.49.1"
  * Après déconnexion par le NUC avec wpa_cli -i p2p-dev-wlan0 p2p_group_remove `ls /sys/class/net/ | grep p2p` --> j'ai:
  * 		"groupFormed: false isGroupOwner: false groupOwnerAddress: null"
- * --> donc semble informatif sur le status de la connexion
+ * 
+ * 
+ * --> donc le retour de requestConnectionInfo() semble informatif sur le status de la connexion
  * 
  * */
 
@@ -149,11 +154,13 @@ public class P2P_wifi extends Activity implements PeerListListener {
 		
  
 		
-		//check connexion
+		//check connexion status
 		manager.requestConnectionInfo(channel, new WifiP2pManager.ConnectionInfoListener() {
 				@Override
 				public void onConnectionInfoAvailable(WifiP2pInfo info) {
 					Log.d(TAG, "onResume(): onConnectionInfoAvailable, wifip2pinfo: " + info.toString()); 
+					 
+					 //Yes connexion, do nothing but set le lable en BLUE 
 					 if ( info.groupFormed) { 
 						Log.d(TAG, "onResume(): boolean info.groupFormed = true donc on a déjà une connexion"); 
 						txt_conn.setTextColor(Color.BLUE);
@@ -161,6 +168,8 @@ public class P2P_wifi extends Activity implements PeerListListener {
 						
 						else 
 						
+						
+						//No connexion, set le label en GRAY et lancer discoverPeers()
 						{
 						Log.d(TAG, "onResume(): boolean info.groupFormed = false donc pas de connexion, on lance discoverPeers()");
 						txt_conn.setTextColor(Color.LTGRAY);
@@ -275,10 +284,10 @@ public class P2P_wifi extends Activity implements PeerListListener {
 		@Override
 			public void run() {	        
 				try {
-			Socket socket = new Socket("192.168.49.1", 4696);
-	        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-	        writer.println(maDateTime);
-	        socket.close(); //sinon accumulation de connexions peut poser pb socat (address already in use) mais aux tests mainly
+					Socket socket = new Socket("192.168.49.1", 4696);
+			        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+			        writer.println(maDateTime);
+			        socket.close(); //sinon accumulation de connexions peut poser pb socat (address already in use) mais aux tests mainly
 				} catch (IOException e) {
                     Log.d(TAG, "erreur send socket :" + e.getMessage());
                 } 

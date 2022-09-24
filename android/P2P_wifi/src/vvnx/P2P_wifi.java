@@ -103,7 +103,6 @@ public class P2P_wifi extends Activity implements PeerListListener {
         private Channel channel;
         private WifiP2pConfig config;
         private WifiP2pDevice leRaspberry;
-        boolean first_time; //default = false
         
 		public static String TAG = "vvnx";
 		
@@ -142,14 +141,13 @@ public class P2P_wifi extends Activity implements PeerListListener {
         Log.d(TAG, "onResume"); 
         
         
-        //register broadcast receiver, seulement si c'est la première fois qu'on passe ici, ce serait peut être mieux de checker si le receiver est null?      
-        if ( ! first_time) { 
-			Log.d(TAG, "boolean first_time = default (false) donc premier passage dans onResume(), on crée un receiver et on le register");
+        //register broadcast receiver si il a pas encore été registered     
+        if ( receiver == null ) {
+			Log.d(TAG, "onResume(): receiver == null , on crée un receiver et on le register");
 			receiver = new P2pBroadcastReceiver(manager, channel, this);
 			registerReceiver(receiver, intentFilter); 
-			first_time = true;		
 		} else {
-			Log.d(TAG, "boolean first_time = true donc au moins deuxième passage dans onResume()");
+			Log.d(TAG, "onResume(): receiver != null");
 		}
 		
  
@@ -160,7 +158,7 @@ public class P2P_wifi extends Activity implements PeerListListener {
 				public void onConnectionInfoAvailable(WifiP2pInfo info) {
 					Log.d(TAG, "onResume(): onConnectionInfoAvailable, wifip2pinfo: " + info.toString()); 
 					 
-					 //Yes connexion, do nothing but set le lable en BLUE 
+					 //Yes connexion, do nothing but set le label en BLUE 
 					 if ( info.groupFormed) { 
 						Log.d(TAG, "onResume(): boolean info.groupFormed = true donc on a déjà une connexion"); 
 						txt_conn.setTextColor(Color.BLUE);

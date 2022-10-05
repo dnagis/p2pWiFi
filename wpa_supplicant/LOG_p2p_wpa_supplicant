@@ -66,8 +66,8 @@ udhcpd -S /etc/udhcpd.conf
 
 #Préparer udhcpd (une seule fois)
 copier busybox-1.31.1/examples/udhcp/udhcpd.conf dans /etc/ #***ATTENTION*** 
-	# j'ai un doute sur la nécessité de modifier: 
-	#The start and end of the IP lease block \nstart		192.168.49.20\nend		192.168.49.254
+Modifier #The start and end of the IP lease block: 
+	 \nstart		192.168.49.20\nend		192.168.49.254 #(les IP par défaut ne permettent pas fonctionnement, pas investigué plus...)
 mkdir -p /var/lib/misc/
 touch /var/lib/misc/udhcpd.leases
 

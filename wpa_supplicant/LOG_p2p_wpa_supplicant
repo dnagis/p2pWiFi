@@ -1,7 +1,7 @@
 P2P-wifi aka WiFi Direct
 
-
-########MACADDRS
+########ergonomie, macaddrs
+wpa_cli p2p_connect e6:5f:01:24:fe:23 pbc join #RPi4 Vauvert novembre 22
 98:af:65:ce:18:6f #NUC
 ba:27:eb:92:7c:8f #zero GdR
 ba:27:eb:ab:f7:a0 #zero Pal

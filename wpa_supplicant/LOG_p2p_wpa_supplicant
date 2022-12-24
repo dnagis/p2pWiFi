@@ -12,6 +12,9 @@ d6:c9:4b:81:c2:73 #Moto Z3 play
 
 ###NUC vers RPi (pour ssh)
 
+***ATTENTION DECOUVERTE DECEMBRE 22***
+regarder dmesg NUC quand échecs de connexion au rpi4: il se peut que ce soit ça le problème... --> iwlWiFi
+
 ## Préparation sur le RPi
 nb: loopback 'lo' pas indispensable
 dans le RPi je mets ces commandes dans /bin/wifi

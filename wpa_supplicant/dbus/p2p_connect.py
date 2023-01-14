@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 
-#p2p_find.py avec ajout: se connecte si device dont name = "zero"
+#p2p_find.py avec ajout: se connecte si device found 
+#pour Zero: p2p_connect.py Zero
 
 
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 import signal
+import sys
+
+
 
 
 def sigint_handler(sig, frame):
@@ -16,17 +20,17 @@ def sigint_handler(sig, frame):
         raise ValueError("Undefined handler for '{}'".format(sig))
 
 
-
-
-#Callback device found, si DeviceName = "Zero" --> Connect
+#Callback device found, si DeviceName = sys.argv[1] --> Connect()
 def deviceFound(devicepath):
 	print("Device found: %s" % (devicepath))
 	peer_found = bus.get_object("fi.w1.wpa_supplicant1", devicepath)
 	peer_macaddr = peer_found.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceAddress', dbus_interface=dbus.PROPERTIES_IFACE)
 	peer_name = peer_found.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceName', dbus_interface=dbus.PROPERTIES_IFACE)
-	print("DeviceName = ", peer_name)
-	if(peer_name == "Zero"):
-		print("\033[1;32mDevice Zero found on tente connection\033[0;39m")
+	print("DeviceName = ", peer_name, " dev_searched = ", dev_searched)
+
+	
+	if(peer_name == dev_searched):
+		print("\033[1;32mDevice %s found on tente connection\033[0;39m" % dev_searched)
 		#wpa_cli p2p_connect <BA_ADDR> pbc join
 		#connect: https://w1.fi/wpa_supplicant/devel/dbus.html fi.w1.wpa_supplicant1.Interface.P2PDevice Methods
 		p2p_connect_arguments = dbus.Dictionary({'wps_method':'pbc','peer':peer_found,'join':True})
@@ -41,6 +45,7 @@ if __name__ == '__main__':
 	
 	DBusGMainLoop(set_as_default=True)
 	
+	dev_searched = sys.argv[1]
 	wpas_dbus_interface = "fi.w1.wpa_supplicant1"
 	interface_name = "wlan0"
 	wpas_dbus_opath = "/fi/w1/wpa_supplicant1"
@@ -64,7 +69,7 @@ if __name__ == '__main__':
 	
 	P2PFindDict = dbus.Dictionary({'Timeout':int(30)})
 	p2p_interface.Find(P2PFindDict)
-	print("P2P Find lancé")
+	print("P2P Find lancé, on cherche: ", dev_searched)
 	
 	#On lance un loop 
 	signal.signal(signal.SIGINT, sigint_handler)

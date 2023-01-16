@@ -106,6 +106,9 @@ public class P2P_wifi extends Activity implements PeerListListener {
         
 		public static String TAG = "vvnx";
 		
+		public static String device_name = "RPi4";
+		//public static String device_name = "Zero";
+		
 		private final IntentFilter intentFilter = new IntentFilter();
 		private BroadcastReceiver receiver = null;
 		
@@ -222,11 +225,12 @@ public class P2P_wifi extends Activity implements PeerListListener {
          * */
 		
         for (WifiP2pDevice unPeer : peerList.getDeviceList()) {			
-			//on vient de trouver un device avec nom=zero
+			//on vient de trouver un device avec nom=device_name
 			//sans check du status (3 = AVAILABLE) je passe 200x/s ici (et donc dans manager.connect()) et le manager a pas l'air d'aimer 
 			//doc status: https://developer.android.com/reference/android/net/wifi/p2p/WifiP2pDevice#constants_1
 			//if (unPeer.deviceName.equals("Zero") && unPeer.status == 3) {
-			if ((unPeer.deviceName.equals("NUC") || unPeer.deviceName.equals("Zero")) && unPeer.status == 3) {	
+			//if ((unPeer.deviceName.equals("NUC") || unPeer.deviceName.equals("Zero")) && unPeer.status == 3) {	
+			if (unPeer.deviceName.equals(device_name) && unPeer.status == 3) {
 				Log.d(TAG, "Dans la peerList on a un Peer dont name matche avec status = " + unPeer.status);
 				
 				if (leRaspberry == null) {

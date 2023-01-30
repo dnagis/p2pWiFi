@@ -1,0 +1,36 @@
+###XPS13 vers RPi4
+redémarrage récent du XPS13
+
+
+wpa_cli (Selected interface 'p2p-dev-wlan0')
+p2p_flush (je flippe d'un éventuel blacklisting)
+set persistent_reconnect 1
+p2p_find
+allumage RPi4 attendre fin clignotage led verte mais pas plus de 120s
+quand j'ai:
+<3>P2P-DEVICE-FOUND e6:5f:01:24:fe:23 p2p_dev_addr=e6:5f:01:24:7e:23 pri_dev_type=0-00000000-0 name='RPi4' config_methods=0x1108 dev_capab=0x25 group_capab=0xb vendor_elems=1 new=1
+lancer
+p2p_connect e6:5f:01:24:fe:23 pbc join
+
+
+OK
+<3>P2P-FIND-STOPPED 
+<3>CTRL-EVENT-SCAN-STARTED 
+<3>P2P-GROUP-FORMATION-SUCCESS 
+<3>P2P-GROUP-STARTED p2p-wlan0-0 client ssid="DIRECT-mK" freq=5180 psk=a6435ac965f7c2cc2e80c54fd34a444ec1a10c68635bb25bde5d4c8700d3f745 go_dev_addr=e6:5f:01:24:7e:23 [PERSISTENT]
+j'essaie de me connecter --> rien
+ un peu plus tard
+<3>P2P-GROUP-REMOVED p2p-wlan0-0 client reason=IDLE
+puis
+<3>P2P-DEVICE-LOST p2p_dev_addr=e6:5f:01:24:7e:23
+
+je retente connexion
+<3>P2P-GROUP-FORMATION-FAILURE --> je suppose que le pb = pbc offcôté GO
+
+
+#J'essaie de faire un ping juste après formation groupe, en me disant que ça ira contre
+l'IDLE. J'arrive à faire 6 ou 7 pings puis déconnexion P2P-GROUP-REMOVED p2p-wlan0-2 client reason=IDLE
+
+
+
+

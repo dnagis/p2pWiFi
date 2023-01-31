@@ -33,4 +33,14 @@ l'IDLE. J'arrive à faire 6 ou 7 pings puis déconnexion P2P-GROUP-REMOVED p2p-w
 
 
 
+###post interessant trouvé avec "P2P-GROUP-REMOVED client reason=IDLE"
+https://linux-wireless.vger.kernel.narkive.com/qra57jXp/iwlwifi-p2p-group-formation-timeout
+
+n'a pas les mêmes symptomes mais donne des pistes: 
+la fréquence au moment de la négo ne passe pas:
+iw phy0 info permettrait d'avoir les possibilités en terme de fréquence?
+
+-Est ce que les specs online du RPi4 donnent les possibilités en GHz du rpi4 et du zero?
+-iw phy0 info est très long, comment avoir les possibilités?
+-Comment logger l'output de wpa_supplicant vers une file
 

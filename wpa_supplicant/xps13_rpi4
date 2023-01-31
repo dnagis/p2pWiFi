@@ -63,5 +63,20 @@ j'ai la connexion qq secondes puis comme avec le xps13:
 
 
 ###J'enlève les fichiers regulatory.db regulatory.db.p7s ajoutés récemment dans /lib/firmware
-j'ai l'impression que ça tient plus longtemps...
+j'ai l'impression que ça tient plus longtemps sur le NUC
+
+##essais sans les /lib/firmware/regulatory.db[p7s] xps13-rpi4 et avec /bin/wifi sur le pi: p2p_group_add persistent freq=2
+
+#parking Lunel terrain sport --> OK
+sur le pi iw p2p-wlan0-0 info --> 2462
+sur le xps13 iw p2p-wlan0-4 info --> 2462
+
+#parking biocoop lunel --> OK
+pi: iw p2p-wlan0-0: info channel 6 (2437 MHz), width: 20 MHz, center1: 2437 MHz
+xps: iw `ifconfig | grep p2p | cut -f 1 -d ' '` info: channel 6 (2437 MHz), width: 20 MHz, center1: 2437 MHz
+
+#parking carouf vv --> OK
+pi: iw p2p-wlan0-0:	channel 11 (2462 MHz), width: 20 MHz, center1: 2462 MHz
+xps:	channel 11 (2462 MHz), width: 20 MHz, center1: 2462 MHz
+
 

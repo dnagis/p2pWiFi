@@ -44,3 +44,10 @@ iw phy0 info permettrait d'avoir les possibilités en terme de fréquence?
 -iw phy0 info est très long, comment avoir les possibilités?
 -Comment logger l'output de wpa_supplicant vers une file
 
+
+###post trouvé en cherchant raspberry wifi direct 5Ghz
+https://raspberrypi.stackexchange.com/questions/122165/connect-wifi-direct-go-with-5ghz-frequency
+suggère de démarrer le groupe avec p2p_group_add freq=2
+je lis le README-P2P --> effectivement on peut mettre fréquence (Special freq=2 or freq=5
+options can be used to request the best 2.4 GHz or 5 GHz band channel
+to be selected automatically.)

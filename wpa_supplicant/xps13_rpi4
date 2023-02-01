@@ -1,7 +1,18 @@
-###XPS13 vers RPi4
-redémarrage récent du XPS13
+###XPS13 <-> RPi4 
+
+###Connexion sinterrompt au bout de qqes secondes, fin 01-23
+
+#Symptomes:
+connexion se fait et au bout de qqes secondes elle disparait
+wpa_cli montre P2P-GROUP-REMOVED p2p-wlan0-0 client reason=IDLE
+parfois j'ai juste le temps de me connecter en ssh, mais rien de plus
+
+#Hypothèses (a bien fonctionné pendant 15j avec beaucoup d'essais, quelles modifs récentes?):
+1)redémarrage récent du XPS13
+2)modifications firmware et regulatory (/lib/firmware)
 
 
+#Tests
 wpa_cli (Selected interface 'p2p-dev-wlan0')
 p2p_flush (je flippe d'un éventuel blacklisting)
 set persistent_reconnect 1
@@ -28,12 +39,10 @@ je retente connexion
 <3>P2P-GROUP-FORMATION-FAILURE --> je suppose que le pb = pbc offcôté GO
 
 
-#J'essaie de faire un ping juste après formation groupe, en me disant que ça ira contre
-l'IDLE. J'arrive à faire 6 ou 7 pings puis déconnexion P2P-GROUP-REMOVED p2p-wlan0-2 client reason=IDLE
+#J'essaie de faire un ping juste après formation groupe, en me disant que ça ira contre l'IDLE.
+J'arrive à faire 6 ou 7 pings puis déconnexion P2P-GROUP-REMOVED p2p-wlan0-2 client reason=IDLE
 
-
-
-###post interessant trouvé avec "P2P-GROUP-REMOVED client reason=IDLE"
+#post interessant trouvé avec "P2P-GROUP-REMOVED client reason=IDLE"
 https://linux-wireless.vger.kernel.narkive.com/qra57jXp/iwlwifi-p2p-group-formation-timeout
 
 n'a pas les mêmes symptomes mais donne des pistes: 
@@ -45,7 +54,8 @@ iw phy0 info permettrait d'avoir les possibilités en terme de fréquence?
 -Comment logger l'output de wpa_supplicant vers une file
 
 
-###post trouvé en cherchant raspberry wifi direct 5Ghz
+##Piste fréquence (2.4  5 GHz)
+post trouvé en cherchant raspberry wifi direct 5Ghz
 https://raspberrypi.stackexchange.com/questions/122165/connect-wifi-direct-go-with-5ghz-frequency
 suggère de démarrer le groupe avec p2p_group_add freq=2
 je lis le README-P2P --> effectivement on peut mettre fréquence (Special freq=2 or freq=5
@@ -62,10 +72,11 @@ j'ai la connexion qq secondes puis comme avec le xps13:
 <3>P2P-DEVICE-LOST p2p_dev_addr=e6:5f:01:24:7e:23
 
 
-###J'enlève les fichiers regulatory.db regulatory.db.p7s ajoutés récemment dans /lib/firmware
+##Piste modifications récentes: regulatory files dans 
+J'enlève les fichiers regulatory.db regulatory.db.p7s ajoutés récemment dans /lib/firmware
 j'ai l'impression que ça tient plus longtemps sur le NUC
 
-##essais sans les /lib/firmware/regulatory.db[p7s] xps13-rpi4 et avec /bin/wifi sur le pi: p2p_group_add persistent freq=2
+#essais sans les /lib/firmware/regulatory.db[p7s] xps13-rpi4 et avec /bin/wifi sur le pi: p2p_group_add persistent freq=2
 
 #parking Lunel terrain sport --> OK
 sur le pi iw p2p-wlan0-0 info --> 2462
@@ -80,3 +91,4 @@ pi: iw p2p-wlan0-0:	channel 11 (2462 MHz), width: 20 MHz, center1: 2462 MHz
 xps:	channel 11 (2462 MHz), width: 20 MHz, center1: 2462 MHz
 
 
+---> OK il semblerait que le pb soit résolu en enlevant les /lib/firmware/regulatory.db[p7s]

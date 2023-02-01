@@ -1,7 +1,7 @@
 P2P-wifi aka WiFi Direct
 
-########ergonomie, macaddrs
-wpa_cli p2p_connect e6:5f:01:24:fe:23 pbc join #RPi4 Vauvert novembre 22
+########macaddrs, ergonomie
+wpa_cli p2p_connect e6:5f:01:24:fe:23 pbc join #RPi4 utilisé depuis nov-22
 98:af:65:ce:18:6f #NUC
 ba:27:eb:92:7c:8f #zero GdR
 ba:27:eb:ab:f7:a0 #zero Pal
@@ -11,19 +11,18 @@ d6:c9:4b:81:c2:73 #Moto Z3 play
 9c:b6:d0:17:2c:8f #XPS13
 
 
-***ATTENTION DECOUVERTE DECEMBRE 22***
-regarder dmesg NUC quand échecs de connexion au RPi4: il se peut que ce soit ça le problème... --> iwlWiFi
+###Spécificités RPi4:
+	Au Grau: je ne p2p_find quasi jamais le RPi4 depuis le NUC, par contre "dehors" (parking, nature, ...) du XPS13 vers le RPi4 aucun problème. à VV livebox éteinte je find aussi
+	regarder dmesg NUC quand échecs de connexion au RPi4: il se peut que ce soit ça le problème... --> iwlWiFi. Hypothèse = fréquence? (5GHz tenté)
+	Le zero, lui, n'avait aucun problème pour NUC vers lui (***mais*** j'avais commenté les networks dans le wpa_supplicant.conf)
 
-***RPi4 behavior différent du zero
-Au Grau: je ne p2p_find quasi jamais le RPi4 depuis le NUC, par contre "dehors" (parking, nature, ...) du XPS13 vers le RPi4 aucun problème
-Ce comportement ne dépend pas de la présence dans le wpa_supplicant.conf d'un network wifi normal (i.e. la livebox du Grau)
-A Vauvert je crois que le comportement du 4 est quasi le même, mais il faudrait contrôler
-
-Le zero, lui, aucun problème pour NUC vers lui (mais je commente les networks dans le wpa_supplicant.conf)
-
+###Echec de connexion cause régulatory
+	un mantra à ne pas oublier: la présence de fichiers /lib/firmware/regulatory* a rendu impossible la connexion XPS13 - RPi4, détails dans les fichies:
+		p2pWiFi/wpa_supplicant/xps13_rpi4 et mtox/wifi (section channels/frequency)
 
 
-###NUC vers RPi howto
+
+###NUC ou XPS13 vers RPi howto
 
 ## Préparation sur le RPi
 nb: loopback 'lo' pas indispensable
@@ -151,7 +150,8 @@ udhcpc -i p2p-wlan0-
  
  
  
-######## 
+######## LOG quotidien débuts
+
 #210322
 Pour des essais j'utilise le RPi4. Comportement notable:
 wpa_cli >> Selected interface 'p2p-dev-wlan0'

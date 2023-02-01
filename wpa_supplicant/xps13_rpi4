@@ -92,3 +92,38 @@ xps:	channel 11 (2462 MHz), width: 20 MHz, center1: 2462 MHz
 
 
 ---> OK il semblerait que le pb soit résolu en enlevant les /lib/firmware/regulatory.db[p7s]
+
+
+
+
+####Tests
+010223
+#3 tests juste primo connexion + ssh + iw wlan0 info avec le /bin/wifi du RPi4 (nb: "freq=2")
+
+	wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent freq=2
+	wpa_cli -i p2p-wlan0-0 wps_pbc
+	ifconfig p2p-wlan0-0 192.168.49.1
+	udhcpd -S /etc/udhcpd.conf
+
+-1) VV avec livebox éteinte: OK 
+-2) outdoor, iw wlan0 info: channel 6 (2437 MHz), width: 20 MHz, center1: 2437 MHz
+-3) outdoor, iw wlan0 info: channel 11 (2462 MHz), width: 20 MHz, center1: 2462 MHz
+
+#3 tests après avoir enlevé le freq=2, la section p2p de mon /bin/wifi est donc:
+
+	wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent 
+	wpa_cli -i p2p-wlan0-0 wps_pbc
+	ifconfig p2p-wlan0-0 192.168.49.1
+	udhcpd -S /etc/udhcpd.conf
+
+-1) outdoor, iw wlan0 info: channel 36 (5180 MHz), width: 20 MHz, center1: 5180 MHz
+je suis étonné d'être en 5GHz
+je veux tester stabilité: je déconnecte ssh , j'attends 5min sans S2RAM du XPS13 et je retente connexion --> OK
+
+-2) outdoor, iw wlan0 info: channel 36 (5180 MHz), width: 20 MHz, center1: 5180 MHz
+reconnexion ssh à 5 min OK
+
+-3) outdoor, iw wlan0 info: channel 36 (5180 MHz), width: 20 MHz, center1: 5180 MHz
+reconnexion ssh à 5 min OK
+
+

@@ -6,6 +6,8 @@
 -j'ai déjà perdu la possibilité de connexion XPS13 - RPi4 en ajoutant les fichiers /lib/firmware/regulatory.db[p7s] 
 	(symptome: P2P-GROUP-REMOVED client reason=idle au bout de qqes secondes et pas de reconnexion)
 
+-commenter la partie p2p du /bin/wifi du RPi en espérant que ça va améliorer le wifi classique: jamais eu de preuve qu'utile
+
 -les cartes réseaus du NUC et celle des RPis n'ont pas toujours le même comportement (disconnects intempestifs du NUC client: P2P-GROUP-REMOVED reason=idle pas observé sur le zero)
 
 -en wifi classique ya qu'une seule interface wlan0. en p2p c'est plus compliqué: au départ ya p2p-dev-wlan0 et ensuite une/des p2p-wlan0-[0-9]

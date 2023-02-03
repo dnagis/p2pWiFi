@@ -17,7 +17,7 @@ d6:c9:4b:81:c2:73 #Moto Z3 play
 	Le zero, lui, n'avait aucun problème pour NUC vers lui (***mais*** j'avais commenté les networks dans le wpa_supplicant.conf)
 
 ###Echec de connexion cause régulatory
-	un mantra à ne pas oublier: la présence de fichiers /lib/firmware/regulatory* a rendu impossible la connexion XPS13 - RPi4, détails dans les fichies:
+	un mantra à ne pas oublier: la présence de fichiers /lib/firmware/regulatory* a rendu impossible la connexion XPS13 - RPi4, détails dans les fichiers:
 		p2pWiFi/wpa_supplicant/xps13_rpi4 et mtox/wifi (section channels/frequency)
 
 

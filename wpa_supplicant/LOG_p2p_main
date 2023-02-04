@@ -14,8 +14,8 @@ d6:c9:4b:81:c2:73 #Moto Z3 play
 ###Spécificités RPi4:
 	-Pas de find au Grau: je ne p2p_find quasi jamais le RPi4 depuis le NUC, par contre "dehors" (parking, nature, ...) du XPS13 vers le RPi4 aucun problème. à VV livebox éteinte je find aussi
 	regarder dmesg NUC quand échecs de connexion au RPi4: il se peut que ce soit ça le problème... --> iwlWiFi. Hypothèse = fréquence? (5GHz tenté)
-	Le zero, lui, n'avait aucun problème pour NUC vers lui (***mais*** j'avais commenté les networks dans le wpa_supplicant.conf)
-	--> hypothèse: essayer d'ajouter freq=2 à la commande de formation de groupe dans /bin/wifi (cf readme.P2P)
+	Le zero, lui, n'avait aucun problème pour NUC vers lui (mais le zero ne supporte pas 5GHz)
+	--> hypothèse: forcer 2GHz ? essayer d'ajouter freq=2 comme argument de p2p_group_add dans /bin/wifi chez le GO (le pi) ou au p2p_connect chez client (cf wpa_supplicantREADME-P2P)
 	
 	-Timing délai reconnexion pour les tests XPS13 - RPi4 (début 2023), le délai utilisé entre la primoconnexion + ssh et la reconnexion ssh était de ***5 minutes***
 	j'ai utilisé 5 minutes en essayant d'imaginer ce que je pourrai capturer (grimpe, skate, cheval, ...)

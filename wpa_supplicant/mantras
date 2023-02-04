@@ -5,6 +5,13 @@
 
 -j'ai déjà perdu la possibilité de connexion XPS13 - RPi4 en ajoutant les fichiers /lib/firmware/regulatory.db[p7s] 
 	(symptome: P2P-GROUP-REMOVED client reason=idle au bout de qqes secondes et pas de reconnexion)
+	
+-c'est risqué de changer plusieurs facteurs en même temps. J'ai déjà perdu la possibilité de me connecter comme ça, ça induit beaucoup d'angoisse inutile. 
+	Exemples de facteurs potientiels (rédigé au moment XPS13 - RPi4):
+	fréquence de connexion (2.4 / 5GHz), fichiers de firmware, les commandes de création de groupe et de listen dans /bin/wifi, le timing (déconnexion ssh - wait(t) - reconnexion --> le
+	temps de wait), la batterie qui alimente le RPi, la fraicheur de redémarrage du XPS13 (role=client), ...
+	J'ai perdu beaucoup de temps et généré du stress inutile en janvier 2023 en faisant en même temps: redémarrage XPS13 - firmware (enfin proche du firware: les fichiers regulatory, cf
+	le mantra ci dessus).
 
 -commenter la partie p2p du /bin/wifi du RPi en espérant que ça va améliorer le wifi classique: jamais eu de preuve qu'utile
 

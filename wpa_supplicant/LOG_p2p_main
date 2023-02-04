@@ -12,10 +12,16 @@ d6:c9:4b:81:c2:73 #Moto Z3 play
 
 
 ###Spécificités RPi4:
-	-Pas de find au Grau: je ne p2p_find quasi jamais le RPi4 depuis le NUC, par contre "dehors" (parking, nature, ...) du XPS13 vers le RPi4 aucun problème. à VV livebox éteinte je find aussi
-	regarder dmesg NUC quand échecs de connexion au RPi4: il se peut que ce soit ça le problème... --> iwlWiFi. Hypothèse = fréquence? (5GHz tenté)
+	-Connexion impossible NUC - RPi4 si livebox pas loin (dmesg: erreurs iwlwifi)
+	Surtout au Grau: je ne p2p_find quasi jamais le RPi4 depuis le NUC, par contre "dehors" (parking, nature, ...) du XPS13 vers le RPi4 aucun problème. à VV livebox éteinte je find aussi
+	Le dmesg NUC quand échecs de connexion au RPi4: montre des tonnes d'erreurs iwlWiFi. Hypothèse = fréquence? (5GHz tenté et fait planter?)
 	Le zero, lui, n'avait aucun problème pour NUC vers lui (mais le zero ne supporte pas 5GHz)
-	--> hypothèse: forcer 2GHz ? essayer d'ajouter freq=2 comme argument de p2p_group_add dans /bin/wifi chez le GO (le pi) ou au p2p_connect chez client (cf wpa_supplicantREADME-P2P)
+	--> Piste: fréquence de connexion
+	Il est possible de forcer 2GHz ajouter freq=2 comme argument de p2p_group_add dans /bin/wifi chez le GO (le pi) ou au p2p_connect chez client (cf wpa_supplicant/README-P2P)
+	i.e. sur le RPi: dans /bin/wifi --> wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent freq=2
+	multiplier les tentatives...
+	pourrait aussi dépendre de la fréquence sur laquelle le NUC est connecté à la livebox du Grau? (i.e. si connecté en 5GHz la conn en p2p à  pas possible?) il faut log avant de tenter
+	et si connexion possible de la fréquence avec iw wlan0 info
 	
 	-Timing délai reconnexion pour les tests XPS13 - RPi4 (début 2023), le délai utilisé entre la primoconnexion + ssh et la reconnexion ssh était de ***5 minutes***
 	j'ai utilisé 5 minutes en essayant d'imaginer ce que je pourrai capturer (grimpe, skate, cheval, ...)

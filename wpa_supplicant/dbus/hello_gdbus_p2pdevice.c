@@ -4,9 +4,9 @@
  * Fonctionnement:
  * Appel de la méthode Find --> contrôle dans une autre fenêtre avec wpa_cli (p2p-dev-wlan0 est par défaut)
  * 
- * gcc gdbus_p2pdevice.c -o gdbus_p2pdevice `pkg-config --cflags --libs glib-2.0 gio-2.0`
+ * gcc hello_gdbus_p2pdevice.c -o hello_gdbus_p2pdevice `pkg-config --cflags --libs glib-2.0 gio-2.0`
  * 
- * DBUS_SYSTEM_BUS_ADDRESS=unix:path=/usr/var/run/dbus/system_bus_socket ./gdbus_p2pdevice
+ * DBUS_SYSTEM_BUS_ADDRESS=unix:path=/usr/var/run/dbus/system_bus_socket ./hello_gdbus_p2pdevice
  * 
  */
 
@@ -58,11 +58,11 @@ int main() {
 	 * NetworkManager/src/cors/supplicant/nm-supplicant-interface.c
 	 */
 	 
-	 
+	//Construction des arguments pour Find: Après Timeout s: P2P-FIND-STOPPED
 	guint timeout = 30;
 	GVariantBuilder builder;
 	g_variant_builder_init(&builder, G_VARIANT_TYPE_VARDICT);
-    g_variant_builder_add(&builder, "{sv}", "Timeout", g_variant_new_int32(timeout));	
+    g_variant_builder_add(&builder, "{sv}", "Timeout", g_variant_new_int32(timeout)); 	
 		
 	g_dbus_proxy_call_sync (proxy,
 							"Find",

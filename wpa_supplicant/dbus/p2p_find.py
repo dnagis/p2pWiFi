@@ -59,7 +59,7 @@ if __name__ == '__main__':
 	bus.add_signal_receiver(deviceFound,dbus_interface=wpas_dbus_interfaces_p2pdevice,signal_name="DeviceFound")
 	bus.add_signal_receiver(deviceLost,dbus_interface=wpas_dbus_interfaces_p2pdevice,signal_name="DeviceLost")
 	
-	P2PFindDict = dbus.Dictionary({'Timeout':int(30)})
+	P2PFindDict = dbus.Dictionary({'Timeout':int(30)}) #Après Timeout s: P2P-FIND-STOPPED
 	p2p_interface.Find(P2PFindDict)
 	
 	#On lance un loop 

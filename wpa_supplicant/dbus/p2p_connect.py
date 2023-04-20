@@ -67,7 +67,8 @@ if __name__ == '__main__':
 	bus.add_signal_receiver(deviceFound,dbus_interface=wpas_dbus_interfaces_p2pdevice,signal_name="DeviceFound")
 	bus.add_signal_receiver(groupStarted,dbus_interface=wpas_dbus_interfaces_p2pdevice,signal_name="GroupStarted")
 	
-	P2PFindDict = dbus.Dictionary({'Timeout':int(30)})
+	#Jai mis 30 pendant longtemps, et j'attendais souvent plus que 30s. ***sigh*** Pourtant n'est pas mandatory
+	P2PFindDict = dbus.Dictionary({'Timeout':int(600)})
 	p2p_interface.Find(P2PFindDict)
 	print("P2P Find lancé, on cherche: ", dev_searched)
 	

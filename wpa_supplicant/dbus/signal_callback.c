@@ -31,7 +31,10 @@ static void on_signal (GDBusProxy *proxy,
     } 
     
     g_print("On continue car le signal est DeviceFoundProperties\n");
-    g_print ("    g_variant_print sur le variant params: '%s'\n", g_variant_print (params, TRUE)); 
+    
+    g_print ("    g_variant_get_type_string sur le variant params: %s\n", g_variant_get_type_string(params)); //(oa{sv})
+    
+    g_print ("    g_variant_print sur le variant params: %s\n", g_variant_print (params, TRUE)); 
     
     if (g_variant_is_of_type(params, G_VARIANT_TYPE("(o)"))) {
                 g_print("   variant_type=(o)\n");

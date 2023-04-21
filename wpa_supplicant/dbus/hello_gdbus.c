@@ -10,9 +10,6 @@ gcc hello_gdbus.c -o hello_gdbus `pkg-config --cflags --libs glib-2.0 gio-2.0`
 g_dbus_proxy_new_for_bus_sync() a l'air d'être dans la librairie libgio-2.0.so.0
 
 
-DBUS_SYSTEM_BUS_ADDRESS=unix:path=/usr/var/run/dbus/system_bus_socket ./hello_gdbus
-
-
 export PATH=$PATH:/initrd/mnt/dev_save/rpi/cross/bin/
 export PKG_CONFIG_LIBDIR=/initrd/mnt/dev_save/rpi/cross/aarch64-linux-gnu/lib/pkgconfig
 export PKG_CONFIG_SYSROOT_DIR=/initrd/mnt/dev_save/rpi/cross/aarch64-linux-gnu

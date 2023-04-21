@@ -6,7 +6,6 @@
  * 
  * gcc hello_gdbus_p2pdevice.c -o hello_gdbus_p2pdevice `pkg-config --cflags --libs glib-2.0 gio-2.0`
  * 
- * DBUS_SYSTEM_BUS_ADDRESS=unix:path=/usr/var/run/dbus/system_bus_socket ./hello_gdbus_p2pdevice
  * 
  */
 

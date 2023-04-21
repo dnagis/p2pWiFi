@@ -8,8 +8,6 @@
  * 
  * gcc signal_callback.c -o signal_callback `pkg-config --cflags --libs glib-2.0 gio-2.0`
  * 
- * DBUS_SYSTEM_BUS_ADDRESS=unix:path=/usr/var/run/dbus/system_bus_socket ./signal_callback
- * 
  */
 
 #include <gio/gio.h>

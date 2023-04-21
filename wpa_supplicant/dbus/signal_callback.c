@@ -15,7 +15,7 @@
 #include <gio/gio.h>
 
 
-/* callback function */
+//https://stackoverflow.com/questions/36596404/registering-a-signal-handler-with-wpa-supplicant-p2p-dbus-interface
 static void on_signal (GDBusProxy *proxy,
                        gchar *sender_name,
                        gchar *signal_name,
@@ -25,6 +25,14 @@ static void on_signal (GDBusProxy *proxy,
     g_print("Dans la fonction on_signal()\n");
     g_print("   sender_name=%s\n", sender_name);
     g_print("   signal_name=%s\n", signal_name);
+    
+    g_print ("    g_variant_print sur le variant params: '%s'\n", g_variant_print (params, TRUE)); 
+    
+    if (g_variant_is_of_type(params, G_VARIANT_TYPE("(o)"))) {
+                g_print("   variant_type=(o)\n");
+            }
+            
+    
 
 }
 

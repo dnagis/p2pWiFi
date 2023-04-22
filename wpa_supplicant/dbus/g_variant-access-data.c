@@ -1,9 +1,7 @@
 //gcc `pkg-config --cflags --libs glib-2.0 gio-2.0` -o g_variant-access-data g_variant-access-data.c
 
+//https://docs.gtk.org/glib/gvariant-format-strings.html#dictionaries
 
-
-
-#include <glib.h>
 #include <gio/gio.h>
 
 int
@@ -33,7 +31,11 @@ main (void)
 	g_variant_lookup (params, "value", "i", &p_max);
 	g_print ("value: %d\n", p_max);
 	
-	/*p_brightness = g_variant_lookup_value (params, "brightness", G_VARIANT_TYPE_VARDICT);
+	
+	/** Pour accéder à des nested dicts type (oa{sa{sv}) cf. https://docs.gtk.org/glib/gvariant-format-strings.html#dictionaries
+	 * 
+	 * 
+	p_brightness = g_variant_lookup_value (params, "brightness", G_VARIANT_TYPE_VARDICT);
 	g_variant_lookup (p_brightness, "max", "i", &p_max);
 	g_print ("max: %d\n", p_max);*/
 

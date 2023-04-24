@@ -22,6 +22,9 @@ static void on_signal (GDBusProxy *proxy,
  
     GVariant *devInfo;
     gchar *devName;
+    gsize arr_len;
+    GVariant *devAddr;
+    const guint8 *arr_data;
     
     g_print("Dans la fonction on_signal()\n");
     g_print("   signal_name=%s\n", signal_name);
@@ -36,11 +39,22 @@ static void on_signal (GDBusProxy *proxy,
     g_print ("    g_variant_get_type_string sur le variant params: %s\n", g_variant_get_type_string(params)); //(oa{sv})
     g_print ("    g_variant_print sur le variant params: %s\n", g_variant_print (params, TRUE)); 
     
+    //Device Name
     g_variant_get (params, "(o@a{sv})", NULL, &devInfo);
     g_variant_lookup (devInfo, "DeviceName", "s", &devName);
     
     g_print ("DeviceName: %s\n", devName); 
-            
+    
+    //Deice Address
+    //piste: https://stackoverflow.com/questions/70581948/extract-array-of-bytes-from-gvariant
+    
+    g_variant_lookup (devInfo, "DeviceAddress", "ay", &devAddr);
+    
+    g_print ("    g_variant_print sur le variant devAddr: %s\n", g_variant_print (devAddr, TRUE)); 
+    g_print ("    g_variant_get_type_string sur le variant devAddr: %s\n", g_variant_get_type_string(devAddr));
+    
+    
+    //arr_data = g_variant_get_fixed_array(devAddr, &arr_len, 1);        
     
 
 }

@@ -20,6 +20,9 @@ static void on_signal (GDBusProxy *proxy,
                        GVariant *params,
                        gpointer user_data) {
  
+    GVariant *devInfo;
+    gchar *devName;
+    
     g_print("Dans la fonction on_signal()\n");
     g_print("   signal_name=%s\n", signal_name);
     
@@ -31,12 +34,12 @@ static void on_signal (GDBusProxy *proxy,
     g_print("On continue car le signal est DeviceFoundProperties\n");
     
     g_print ("    g_variant_get_type_string sur le variant params: %s\n", g_variant_get_type_string(params)); //(oa{sv})
-    
     g_print ("    g_variant_print sur le variant params: %s\n", g_variant_print (params, TRUE)); 
     
-    if (g_variant_is_of_type(params, G_VARIANT_TYPE("(o)"))) {
-                g_print("   variant_type=(o)\n");
-            }
+    g_variant_get (params, "(o@a{sv})", NULL, &devInfo);
+    g_variant_lookup (devInfo, "DeviceName", "s", &devName);
+    
+    g_print ("DeviceName: %s\n", devName); 
             
     
 

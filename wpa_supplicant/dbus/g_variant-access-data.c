@@ -20,11 +20,15 @@ main (void)
 	GVariant *data, *params, *p_brightness;
 	gint value = 1;
 	gint max = 3;
+	gchar *model_in = "RPi4"; //Pour un exemple de string
 	gint p_max;	
+	gchar *model_out;
+	
+	//g_print ("la string = %s\n", model_in);
 
 	
 	/* Création d'un variant type (oa{sv}) */
-	data = g_variant_new_parsed ("(%o, {'value': <%i>, 'max': <%i>})", "/object/path", value, max);
+	data = g_variant_new_parsed ("(%o, {'value': <%i>, 'max': <%i>, 'model': <%s>})", "/object/path", value, max, model_in);
 	                             
 	g_print ("g_variant_get_type_string sur le variant data: %s\n", g_variant_get_type_string(data));
 	g_print ("g_variant_print sur le variant data: %s\n", g_variant_print (data, TRUE)); 
@@ -48,6 +52,9 @@ main (void)
 	
 	g_variant_lookup (params, "max", "i", &p_max);
 	g_print ("max: %d\n", p_max);
+	
+	g_variant_lookup (params, "model", "s", &model_out);
+	g_print ("model: %s\n", model_out);
 	
 	
 	

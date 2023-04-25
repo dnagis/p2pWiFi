@@ -47,10 +47,11 @@ main (void)
 	
 	
 	
-	
+	g_print ("g_variant_get_type_string sur le variant params: %s\n", g_variant_get_type_string(params)); //a{sv}
 	g_print ("g_variant_print sur le variant params: %s\n", g_variant_print (params, TRUE));
 	
 	g_variant_lookup (params, "max", "i", &p_max);
+	//g_print ("g_variant_get_type_string sur p_max: %s\n", g_variant_get_type_string(p_max)); //impossible à la compil: g_variant_get_type_string attends un GVariant*
 	g_print ("max: %d\n", p_max);
 	
 	g_variant_lookup (params, "model", "s", &model_out);

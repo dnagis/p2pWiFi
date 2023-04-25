@@ -20,11 +20,13 @@ static void on_signal (GDBusProxy *proxy,
                        GVariant *params,
                        gpointer user_data) {
  
-    GVariant *devInfo;
+    GVariant *devInfoDict;
     gchar *devName;
-    gsize arr_len;
-    GVariant *devAddr;
+    //GVariant *devAddr;
+    //gchar *devAddr;
+    guint8 devAddr[16];
     const guint8 *arr_data;
+    gsize arr_len;   
     gboolean success;
     
     g_print("Dans la fonction on_signal()\n");
@@ -37,22 +39,28 @@ static void on_signal (GDBusProxy *proxy,
     
     g_print("On continue car le signal est DeviceFoundProperties\n");
     
-    g_print ("    g_variant_get_type_string sur le variant params: %s\n", g_variant_get_type_string(params)); //(oa{sv})
-    g_print ("    g_variant_print sur le variant params: %s\n", g_variant_print (params, TRUE)); 
+    //g_print ("    g_variant_get_type_string sur le variant params: %s\n", g_variant_get_type_string(params)); //(oa{sv})
+    //g_print ("    g_variant_print sur le variant params: %s\n", g_variant_print (params, TRUE)); 
     
-    //Device Name
-    g_variant_get (params, "(o@a{sv})", NULL, &devInfo);
-    g_variant_lookup (devInfo, "DeviceName", "s", &devName);
+    //Dissocation de l'object path et du dict qui contient les infos qui m'interessent --> devInfoDict a{sv}
+    g_print("On dissocie l'object path et l'array de dict qui sera devInfoDict\n");    
+    g_variant_get (params, "(o@a{sv})", NULL, &devInfoDict);
+    g_print ("g_variant_get_type_string sur le GVariant devInfoDict: %s\n", g_variant_get_type_string(devInfoDict)); //a{sv}
+    g_print ("g_variant_print sur le variant devInfoDict: %s\n", g_variant_print (devInfoDict, TRUE)); 
     
+    //Récupération d'entries par nom de la key se fait avec g_variant_lookup() qui nécessite un format string
+    
+    //DeviceName
+    g_variant_lookup (devInfoDict, "DeviceName", "s", &devName);    
     g_print ("DeviceName: %s\n", devName); 
     
-    //Deice Address
-    //piste: https://stackoverflow.com/questions/70581948/extract-array-of-bytes-from-gvariant
+    //Deice Address qui apparait comme ça dans devInfoDict: 'DeviceAddress': <[byte 0xe6, 0x5f, 0x01, 0x24, 0x7e, 0x23]>
+    //piste: https://stackoverflow.com/questions/70581948/extract-array-of-bytes-from-gvariant        
+    success = g_variant_lookup (devInfoDict, "DeviceAddress", "ay", devAddr); //avec "v" ou "s" return value de g_variant_lookup() = FALSE
     
+    if (success) g_print ("result g_variant_lookup sur DeviceAddress --> success\n");
     
-    success = g_variant_lookup (devInfo, "DeviceAddress", "ay", &devAddr);
-    
-    if (success) g_print ("g_variant_lookup sur DeviceAddress success\n");
+    g_print ("DeviceAddress[0]: %s\n", devAddr[0]); //segFault que je fasse g_variant_lookup() avec devAddr ou $devAddr
     
     
     //g_print ("    g_variant_print sur le variant devAddr: %s\n", g_variant_print (devAddr, TRUE)); 

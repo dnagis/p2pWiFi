@@ -22,11 +22,7 @@ static void on_signal (GDBusProxy *proxy,
  
     GVariant *devInfoDict;
     gchar *devName;
-    //GVariant *devAddr;
-    //gchar *devAddr;
-    guint8 devAddr[16];
-    const guint8 *arr_data;
-    gsize arr_len;   
+    GVariant *p_array;
     gboolean success;
     
     g_print("Dans la fonction on_signal()\n");
@@ -54,20 +50,17 @@ static void on_signal (GDBusProxy *proxy,
     g_variant_lookup (devInfoDict, "DeviceName", "s", &devName);    
     g_print ("DeviceName: %s\n", devName); 
     
-    //Deice Address qui apparait comme ça dans devInfoDict: 'DeviceAddress': <[byte 0xe6, 0x5f, 0x01, 0x24, 0x7e, 0x23]>
-    //piste: https://stackoverflow.com/questions/70581948/extract-array-of-bytes-from-gvariant        
-    success = g_variant_lookup (devInfoDict, "DeviceAddress", "ay", devAddr); //avec "v" ou "s" return value de g_variant_lookup() = FALSE
+    //Deice Address qui apparait comme ça dans g_variant_print (devInfoDict: 'DeviceAddress': <[byte 0xe6, 0x5f, 0x01, 0x24, 0x7e, 0x23]>
     
-    if (success) g_print ("result g_variant_lookup sur DeviceAddress --> success\n");
+    //cf glib_dict_playground.c pour les essais
+    p_array = g_variant_lookup_value (devInfoDict, "DeviceAddress", g_variant_type_new("ay"));
     
-    g_print ("DeviceAddress[0]: %s\n", devAddr[0]); //segFault que je fasse g_variant_lookup() avec devAddr ou $devAddr
-    
-    
-    //g_print ("    g_variant_print sur le variant devAddr: %s\n", g_variant_print (devAddr, TRUE)); 
-    //g_print ("    g_variant_get_type_string sur le variant devAddr: %s\n", g_variant_get_type_string(devAddr));
-    
-    
-    //arr_data = g_variant_get_fixed_array(devAddr, &arr_len, 1);        
+    if (p_array == NULL) {
+		g_print ("p_array est NULL\n");
+		return;
+	}
+	
+	g_print ("g_variant_print sur le GVariant p_array: %s\n", g_variant_print (p_array, TRUE)); 
     
 
 }

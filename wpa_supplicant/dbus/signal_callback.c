@@ -39,8 +39,8 @@ static void on_signal (GDBusProxy *proxy,
     //g_print ("    g_variant_print sur le variant params: %s\n", g_variant_print (params, TRUE)); 
     
     //Dissocation de l'object path et du dict qui contient les infos qui m'interessent --> devInfoDict a{sv}
-    g_print("On dissocie l'object path et l'array de dict qui sera devInfoDict\n");    
-    g_variant_get (params, "(o@a{sv})", NULL, &devInfoDict);
+    g_print("On dissocie l'object path o et l'array de dict a{sv} qui sera devInfoDict\n");    
+    g_variant_get (params, "(o@a{sv})", NULL, &devInfoDict); //o va dans NULL, le reste va dans a{sv} car @ veut dire: "Used as a prefix for a GVariant type string"
     g_print ("g_variant_get_type_string sur le GVariant devInfoDict: %s\n", g_variant_get_type_string(devInfoDict)); //a{sv}
     g_print ("g_variant_print sur le variant devInfoDict: %s\n", g_variant_print (devInfoDict, TRUE)); 
     

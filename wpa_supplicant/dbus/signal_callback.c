@@ -70,8 +70,7 @@ int main() {
    
  	/**
  	 * Connexion à l'interface fi.w1.wpa_supplicant1.Interface.P2PDevice
- 	 * 
- 	 */
+ 	 **/
 	
 	
 	GDBusProxy *proxy = NULL;
@@ -87,30 +86,18 @@ int main() {
 											NULL, /* GCancellable */
 											&error);
    
-   
-   if (error != NULL)
-		{
-		g_print("Erreur g_dbus_proxy_new_for_bus_sync: %s\n", error->message);
-		}
+   if (error != NULL) g_print("Erreur g_dbus_proxy_new_for_bus_sync: %s\n", error->message);
 	
 	/**
-	 * 
-	 * 
+	 * Assignation de la callback signal received
 	 */
 	 
-	 
-	     g_signal_connect(proxy,
-                     "g-signal",
-                     G_CALLBACK(on_signal), // stub func that does something simple
-                     NULL);
-	 
-
+	g_signal_connect(proxy, "g-signal", G_CALLBACK(on_signal), NULL);
 		
 	/**
 	 * 
-	 * Lancer le loop
+	 * Lancement du loop
 	 */
-	
 	
 	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(loop);

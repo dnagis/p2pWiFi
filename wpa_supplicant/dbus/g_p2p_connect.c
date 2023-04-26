@@ -9,6 +9,49 @@
 #include <gio/gio.h>
 
 gchar *dev_searched = "RPi4";
+GDBusProxy *proxy = NULL;
+
+
+/**
+ * Connect
+ * 
+ * Connect ( a{sv} : args ) –> s : generated_pin
+ * 
+ * https://w1.fi/wpa_supplicant/devel/dbus.html#dbus_p2pdevice
+ * 
+ * NetworkManager --> nm-supplicant-interface.c ligne 2824 nm_supplicant_interface_p2p_connect()
+ * 
+ * 
+ * 
+ * */
+
+static void connect(GVariant *peer) {
+	
+	
+	GVariantBuilder builder;
+	GError *error = NULL;
+	
+	g_print ("on connect peer = %s\n", peer);
+	
+    g_variant_builder_init(&builder, G_VARIANT_TYPE_VARDICT);
+
+    g_variant_builder_add(&builder, "{sv}", "wps_method", g_variant_new_string("pbc"));
+    g_variant_builder_add(&builder, "{sv}", "peer", g_variant_new_object_path(peer)); //Incompatible type
+    g_variant_builder_add(&builder, "{sv}", "join", g_variant_new_boolean(TRUE));
+    g_variant_builder_add(&builder, "{sv}", "persistent", g_variant_new_boolean(TRUE));
+    //g_variant_builder_add(&builder, "{sv}", "go_intent", g_variant_new_int32(7));
+
+	g_dbus_proxy_call_sync (proxy,
+							"Connect",
+							g_variant_new("(a{sv})", &builder),
+							G_DBUS_CALL_FLAGS_NONE,
+							-1,
+							NULL,
+							&error);
+							
+	if (error != NULL) g_print("Erreur g_dbus_proxy_call_sync pour Connect: %s\n", error->message);
+	
+}
 
 static void on_signal (GDBusProxy *proxy,
                        gchar *sender_name,
@@ -18,6 +61,7 @@ static void on_signal (GDBusProxy *proxy,
 	
 	GVariant *devInfoDict;
 	gchar *devName;
+	GVariant *peer;  
 	
     g_print("on_signal() signal_name=%s\n", signal_name);
     
@@ -31,13 +75,22 @@ static void on_signal (GDBusProxy *proxy,
         g_print("on cherche %s\n", dev_searched);
         
         //DeviceName
-        g_variant_get (params, "(o@a{sv})", NULL, &devInfoDict);
+        g_variant_get (params, "(o@a{sv})", &peer, &devInfoDict);
         g_variant_lookup (devInfoDict, "DeviceName", "s", &devName);    
 		g_print ("DeviceName: %s\n", devName); 
 		
+		//Object Path https://docs.gtk.org/glib/gvariant-format-strings.html à l'exemple strings
+		if (peer == NULL) {
+			g_print ("peer est NULL\n");
+				} else {
+			g_print ("peer =%s\n", peer);
+			}
+
+		//connect(peer);
+		
 		if (g_strcmp0(devName, dev_searched) == 0) {
 			g_print ("On a trouve: %s\n", dev_searched); 
-			
+			connect(peer);
 			}
 		
         
@@ -50,8 +103,6 @@ static void on_signal (GDBusProxy *proxy,
 
 int main() {
 	
-	GDBusProxy *proxy = NULL;
-	GDBusProxy *p2p_proxy = NULL;
 	GError *error = NULL;
 
 	proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
@@ -73,10 +124,12 @@ int main() {
 	
 	/**
 	 * Appel de Find() sur fi.w1.wpa_supplicant1.Interface.P2PDevice
+	 * https://w1.fi/wpa_supplicant/devel/dbus.html#dbus_p2pdevice
+	 * 
+	 * Construction des arguments pour la méthode Find: network manager: nm-supplicant-interface.c
 	 * */
-	 
-	//Construction des arguments pour Find: network manager: nm-supplicant-interface.c
-	guint timeout = 30; //Après Timeout s: P2P-FIND-STOPPED
+
+	guint timeout = 60; //Timeout (s) au terme --> P2P-FIND-STOPPED
 	GVariantBuilder methodParms;
 		
 	g_variant_builder_init(&methodParms, G_VARIANT_TYPE_VARDICT);

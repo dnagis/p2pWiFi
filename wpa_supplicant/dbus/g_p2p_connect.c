@@ -36,7 +36,8 @@ static void connect(GVariant *peer) {
     g_variant_builder_init(&builder, G_VARIANT_TYPE_VARDICT);
 
     g_variant_builder_add(&builder, "{sv}", "wps_method", g_variant_new_string("pbc"));
-    g_variant_builder_add(&builder, "{sv}", "peer", g_variant_new_object_path(peer)); //Incompatible type
+    //g_variant_builder_add(&builder, "{sv}", "peer", g_variant_new_object_path(peer)); //il faut gchar* pour avoir qq chose
+    g_variant_builder_add(&builder, "{sv}", "peer", peer);
     g_variant_builder_add(&builder, "{sv}", "join", g_variant_new_boolean(TRUE));
     g_variant_builder_add(&builder, "{sv}", "persistent", g_variant_new_boolean(TRUE));
     //g_variant_builder_add(&builder, "{sv}", "go_intent", g_variant_new_int32(7));
@@ -83,7 +84,7 @@ static void on_signal (GDBusProxy *proxy,
 		if (peer == NULL) {
 			g_print ("peer est NULL\n");
 				} else {
-			g_print ("peer =%s\n", peer);
+			g_print ("peer = %s\n", peer);
 			}
 
 		//connect(peer);

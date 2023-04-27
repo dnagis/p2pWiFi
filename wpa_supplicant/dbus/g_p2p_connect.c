@@ -31,16 +31,33 @@ static void connect(GVariant *peer) {
 	GVariantBuilder builder;
 	GError *error = NULL;
 	
-	g_print ("on connect peer = %s\n", peer);
+	g_print ("Fonction connect() pour peer = %s\n", peer);
+	
+	
+	
+	g_print ("Dans connect() g_variant_get_type_string sur le GVariant peer: %s\n", g_variant_get_type_string(peer));
 	
     g_variant_builder_init(&builder, G_VARIANT_TYPE_VARDICT);
 
     g_variant_builder_add(&builder, "{sv}", "wps_method", g_variant_new_string("pbc"));
+    g_variant_builder_add(&builder, "{sv}", "join", g_variant_new_boolean(TRUE));    
+    
+    
+    /**Bloque au runtime ici
+     * 
+     * */
+    
     //g_variant_builder_add(&builder, "{sv}", "peer", g_variant_new_object_path(peer)); //il faut gchar* pour avoir qq chose
     g_variant_builder_add(&builder, "{sv}", "peer", peer);
-    g_variant_builder_add(&builder, "{sv}", "join", g_variant_new_boolean(TRUE));
-    g_variant_builder_add(&builder, "{sv}", "persistent", g_variant_new_boolean(TRUE));
+	
+
+
+
+
+    //g_variant_builder_add(&builder, "{sv}", "persistent", g_variant_new_boolean(TRUE));
     //g_variant_builder_add(&builder, "{sv}", "go_intent", g_variant_new_int32(7));
+
+	g_print ("on est avant le lancement de g_dbus_proxy_call_sync() pour Connect\n");
 
 	g_dbus_proxy_call_sync (proxy,
 							"Connect",
@@ -49,6 +66,8 @@ static void connect(GVariant *peer) {
 							-1,
 							NULL,
 							&error);
+							
+    g_print ("on est apres le lancement de g_dbus_proxy_call_sync() pour Connect\n");
 							
 	if (error != NULL) g_print("Erreur g_dbus_proxy_call_sync pour Connect: %s\n", error->message);
 	
@@ -86,13 +105,16 @@ static void on_signal (GDBusProxy *proxy,
 				} else {
 			g_print ("peer = %s\n", peer);
 			}
-
-		//connect(peer);
 		
-		if (g_strcmp0(devName, dev_searched) == 0) {
-			g_print ("On a trouve: %s\n", dev_searched); 
+		
+		g_print ("Dans on_signal() g_variant_get_type_string sur le GVariant peer: %s\n", g_variant_get_type_string(peer)); //SegFault
+
+
+				
+		//if (g_strcmp0(devName, dev_searched) == 0) {
+			g_print ("On a trouve: %s on lance un connect...\n", dev_searched); 
 			connect(peer);
-			}
+		//	}
 		
         
         

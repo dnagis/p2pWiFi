@@ -22,10 +22,10 @@ GDBusProxy *proxy = NULL;
  * NetworkManager --> nm-supplicant-interface.c ligne 2824 nm_supplicant_interface_p2p_connect()
  * 
  * 
- * 
- * */
+ **/ 
 
-static void connect(GVariant *peer) {
+
+static void connect(gchar *peer) {
 	
 	
 	GVariantBuilder builder;
@@ -35,7 +35,7 @@ static void connect(GVariant *peer) {
 	
 	
 	
-	g_print ("Dans connect() g_variant_get_type_string sur le GVariant peer: %s\n", g_variant_get_type_string(peer));
+	//g_print ("Dans connect() g_variant_get_type_string sur le GVariant peer: %s\n", g_variant_get_type_string(peer));
 	
     g_variant_builder_init(&builder, G_VARIANT_TYPE_VARDICT);
 
@@ -43,12 +43,11 @@ static void connect(GVariant *peer) {
     g_variant_builder_add(&builder, "{sv}", "join", g_variant_new_boolean(TRUE));    
     
     
-    /**Bloque au runtime ici
-     * 
-     * */
+    //Bloque au runtime ici
+     
     
-    //g_variant_builder_add(&builder, "{sv}", "peer", g_variant_new_object_path(peer)); //il faut gchar* pour avoir qq chose
-    g_variant_builder_add(&builder, "{sv}", "peer", peer);
+    g_variant_builder_add(&builder, "{sv}", "peer", g_variant_new_object_path(peer)); //il faut gchar* pour avoir qq chose
+    //g_variant_builder_add(&builder, "{sv}", "peer", peer);
 	
 
 
@@ -73,6 +72,8 @@ static void connect(GVariant *peer) {
 	
 }
 
+
+
 static void on_signal (GDBusProxy *proxy,
                        gchar *sender_name,
                        gchar *signal_name,
@@ -81,7 +82,8 @@ static void on_signal (GDBusProxy *proxy,
 	
 	GVariant *devInfoDict;
 	gchar *devName;
-	GVariant *peer;  
+	//GVariant *peer;  
+	gchar *peer;
 	
     g_print("on_signal() signal_name=%s\n", signal_name);
     
@@ -107,14 +109,14 @@ static void on_signal (GDBusProxy *proxy,
 			}
 		
 		
-		g_print ("Dans on_signal() g_variant_get_type_string sur le GVariant peer: %s\n", g_variant_get_type_string(peer)); //SegFault
+		//g_print ("Dans on_signal() g_variant_get_type_string sur le GVariant peer: %s\n", g_variant_get_type_string(peer)); //SegFault
 
 
 				
-		//if (g_strcmp0(devName, dev_searched) == 0) {
+		if (g_strcmp0(devName, dev_searched) == 0) {
 			g_print ("On a trouve: %s on lance un connect...\n", dev_searched); 
 			connect(peer);
-		//	}
+			}
 		
         
         

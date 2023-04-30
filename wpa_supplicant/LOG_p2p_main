@@ -1,23 +1,57 @@
 P2P-wifi aka WiFi Direct
 
-########macaddrs, ergonomie
-wpa_cli p2p_connect e6:5f:01:24:fe:23 pbc join #RPi4 utilisé depuis nov-22
-98:af:65:ce:18:6f #NUC
-ba:27:eb:92:7c:8f #zero GdR
-ba:27:eb:ab:f7:a0 #zero Pal
-5a:6d:6b:ae:de:3b #POCO X3 Pro
-d6:c9:4b:81:c2:73 #Moto Z3 play
-1a:f0:e4:11:ef:ba #Redmi note 4
-9c:b6:d0:17:2c:8f #XPS13
 
 
-###Spécificités RPi4:
-	-2023 Connexion impossible NUC - RPi4 si livebox pas loin (dmesg: erreurs iwlwifi)
+### Connexion p2p depuis focus vers RPi4: configuration en cours
+
+
+## Configuration sur le RPi4
+# wpa_supplicant.conf (nb: il n'y en pas deux: un wifi classique et un p2p) 
+	ctrl_interface=/var/run/wpa_supplicant
+	device_name=RPi4
+	persistent_reconnect=1
+
+# /bin/wifi
+#(nb: loopback 'lo' pas indispensable)
+	wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent freq=2
+	ifconfig p2p-wlan0-0 192.168.49.1
+	wpa_cli -i p2p-wlan0-0 wps_pbc
+	#udhcpd -S /etc/udhcpd.conf #ATTENTION INUTILE MAIS DANS LE SFS UNCOMMENTED: je pense que c'est pour Android que je l'ai laissé: car focus assigne l'IP en action script
+
+
+NB Sur RPi je n'ai pas d'action script sur p2p (contrairement à ce que j'ai en focus), mais j'en ai une sur wlan0 pour demander une IP
+
+
+
+## Configuration côté client (focus: NUC ou XPS13)
+nb: connexion doit avoir lieu < 120 s après démarrage du RPi = default timeout wps_pbc
+connexion via script par appel methode dbus
+
+# Configuration de l'IP
+l'IP de l'interface p2p-wlan0-N obtenue se fait par action_script:
+	rc.sysinit: wpa_cli -a /usr/share/wpa_action_scripts/wpa_action_p2p.sh -B #l'astuce en ne précisant pas -i p2p-dev-wlan0 c'est que p2p-dev-wlan0 est l'interface par défaut
+	wpa_action_p2p.sh (core.sfs): if [ "$2" = "P2P-GROUP-STARTED" ]; --> ifconfig $3(i.e. p2p-wlan0-N) 192.168.49.2 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###Spécificités RPi4 (début 2023)
+	Symptomes: connexion impossible NUC - RPi4 si livebox pas loin (dmesg: erreurs iwlwifi)
 	Surtout au Grau: je ne p2p_find quasi jamais le RPi4 depuis le NUC, par contre "dehors" (parking, nature, ...) du XPS13 vers le RPi4 aucun problème. à VV livebox éteinte je find aussi
 	Le dmesg NUC quand échecs de connexion au RPi4: montre des tonnes d'erreurs iwlWiFi. 
 	--> Hypothèse = fréquence? (5GHz serait tenté et ferait planter)
 	Le zero, lui, n'avait aucun problème pour NUC vers lui (mais le zero ne supporte pas 5GHz)
-	--> Solution: fréquence de connexion
+	--> Solution: ***fréquence de connexion***
 	Il est possible de forcer 2GHz ajouter freq=2 comme argument de p2p_group_add dans /bin/wifi chez le GO (le pi) ou au p2p_connect chez client (cf wpa_supplicant/README-P2P)
 	Ma solution: sur le RPi: dans /bin/wifi --> wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent freq=2
 	Semble se confirmer
@@ -27,59 +61,21 @@ d6:c9:4b:81:c2:73 #Moto Z3 play
 	-Timing délai reconnexion pour les tests XPS13 - RPi4 (début 2023), le délai utilisé entre la primoconnexion + ssh et la reconnexion ssh était de ***5 minutes***
 	j'ai utilisé 5 minutes en essayant d'imaginer ce que je pourrai capturer (grimpe, skate, cheval, ...)
 	MAIS
-	J'ai tenté 8 minutes un jour par hasard, la connexion était perdue, je pense que c'est confirmé 
+	J'ai tenté 8 minutes un jour par hasard parking casto Lattes, la connexion était perdue, je pense que c'est confirmé: au bout d'un délai entre 5 et 6 min (6 je pense) --> déconnexion
+
 
 ###Perte de connexion au bout de qqes secondes (P2P-GROUP-REMOVED p2p-wlan0-0 client reason=IDLE) cause régulatory
 	un mantra à ne pas oublier: la présence de fichiers /lib/firmware/regulatory* a rendu impossible la connexion XPS13 - RPi4, détails dans les fichiers:
 		p2pWiFi/wpa_supplicant/xps13_rpi4 et mtox/wifi (section channels/frequency)
 
 
-
-###NUC ou XPS13 vers RPi howto
-
-## Préparation sur le RPi
-nb: loopback 'lo' pas indispensable
-dans le RPi je mets ces commandes dans /bin/wifi
-
-wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
-wpa_cli -i p2p-wlan0-0 wps_pbc
-ifconfig p2p-wlan0-0 192.168.49.1
-#udhcpd pas nécessaire pour NUC vers RPi: j'ifconfig une IP fixe
-
-
-## Connexion côté client (NUC ou XPS13)
-nb: connexion doit avoir lieu < 120 s après démarrage du RPi = default timeout wps_pbc, nb: résiste au S2RAM du NUC, comme wlan0
-pour déterminer la bonne MACADDR: 
-si p2p_find retourne
-P2P-DEVICE-FOUND ba:27:eb:5b:4c:ec p2p_dev_addr=ba:27:eb:5b:cc:ec pri_dev_type=0-00000000-0 name='Zero' config_methods=0x1108 dev_capab=0x25 group_capab=0xb vendor_elems=1 new=1
-la bonne mac_addr est ba:27:eb:5b:4c:ec (la première)
-
-connexion avec:
+###Connexion manuelle focus vers RPi: pour déterminer la bonne MACADDR: 
+	si p2p_find retourne
+		P2P-DEVICE-FOUND ba:27:eb:5b:4c:ec p2p_dev_addr=ba:27:eb:5b:cc:ec pri_dev_type=0-00000000-0 name='Zero' config_methods=0x1108 dev_capab=0x25 group_capab=0xb vendor_elems=1 new=1
+	la bonne mac_addr est ba:27:eb:5b:4c:ec (la première)
+	alors connexion avec:
 wpa_cli p2p_connect ba:27:eb:5b:4c:ec pbc join #nb à ce moment l'interface par défaut pour wpa_cli c'est p2p-dev-wlan0 pas une p2p-wlan0-N 
 
-
-## Configuration de l'IP de l'ordi
-#manually:
-ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.2
-
-#automatically:
-connexion par deviceName: p2pWiFi/wpa_supplicant/dbus/p2p_connect_zero.py,
-la configuration de l'interface p2p-wlan0-N obtenue se fait par action_script:
-sysinit:
-	wpa_cli -a /usr/share/wpa_action_scripts/wpa_action_p2p.sh -B
-	(l'astuce en ne précisant pas -i p2p-dev-wlan0 c'est que p2p-dev-wlan0 est l'interface par défaut)
-wpa_action_p2p.sh (core.sfs): if [ "$2" = "P2P-GROUP-STARTED" ]; --> ifconfig $3(i.e. p2p-wlan0-N) 192.168.49.2 
-
-
-
-
-
-
-
-########wpa_supplicant.conf 
-il n'y en pas deux (pas un wifi classique et un p2p)
-settings p2p sur le RPi qui fonctionnent:
-device_name=Zero
 
 
 ###attention pour avoir la bonne MAC ADDR à donner à Android pour qu'il trouve un device:
@@ -91,9 +87,7 @@ P2P-DEVICE-FOUND ba:27:eb:ab:77:a0 p2p_dev_addr=ba:27:eb:ab:f7:a0 pri_dev_type=0
 	--> c'est p2p_device_address=ba:27:eb:ab:f7:a0 et pas bssid=ba:27:eb:ab:77:a0
 
 
-
-
-###Android vers RPi: préparation p2p dans /bin/wifi:
+###Android vers RPi: préparation p2p sur le RPi dans /bin/wifi:
 
 wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
 wpa_cli -i p2p-wlan0-0 wps_pbc
@@ -230,20 +224,11 @@ wpa_cli -i `ls /sys/class/net/ | grep p2p` wps_pbc
 #Vérifier que le tel est connecté
 ping 192.168.49.20
 
-
-
-
-
-
 #Déconnecter
 wpa_cli -i `ls /sys/class/net/ | grep p2p` disconnect
 
 #Retirer le groupe si nécessaire
 wpa_cli -i p2p-dev-wlan0 p2p_group_remove `ls /sys/class/net/ | grep p2p`
-
-
-
-
 
 #311221 ssh du NUC vers le zero en p2p
 
@@ -262,8 +247,6 @@ ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.2
 
 avoir automatiquement l'interface p2p (p2p-wlan0-N):
 ls /sys/class/net/ | grep p2p
-
-
 
 
 #271221 Recette propre pour connecter deux linux:
@@ -396,12 +379,9 @@ import gobject --> je crois que pas possible donc: from gi.repository import GOb
 pygobject-3.42.0.tar.xz lien vers source des tarballs: https://pygobject.readthedocs.io/en/latest/bugs_repo.html
 	 meson builddir --prefix=/usr && ninja -C builddir && ninja install -C builddir puis from gi.repository import GObject as gobject
 
-
-
 #281121
 reprise de core.sfs
 wpa_cli -i wlan0 -a /usr/share/wpa_action_scripts/wpa_action_wlan0.sh &
-
 
 #261121
 repasser en listen après déconnexion ou failure connexion:
@@ -423,10 +403,6 @@ je modifie /usr/share/udhcpc/default.script pour ne pas avoir à restaurer /etc/
 			mv "$tmpfile" "$realconf"
 		fi
 
-
-
-
-
 #241121
 action script wlan0:
 J'arrive à faire fonctionner l'action script (initialement je n'avais pas réussi à faire du logger -/var/log/messages- avec,
@@ -435,7 +411,6 @@ wpa_cli -iwlan0 -a /root/action_wpa.sh #et dans une autre console wpa_cli -iwlan
 wpa_cli -a /root/action_wpa.sh
 $1 ==> p2p-dev-wlan0
 $2 ==> P2P-GROUP-STARTED ou P2P-GROUP-REMOVED
-
 
 action script P2P:
 inspiration dans: wpa_supplicant/examples/p2p-action.sh 

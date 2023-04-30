@@ -6,10 +6,12 @@ P2P-wifi aka WiFi Direct
 
 
 ## Configuration sur le RPi4
-# wpa_supplicant.conf (nb: il n'y en pas deux: un wifi classique et un p2p) 
+# wpa_supplicant.conf (nb: il y en a un seul pas deux: un wifi classique et un p2p) 
 	ctrl_interface=/var/run/wpa_supplicant
 	device_name=RPi4
 	persistent_reconnect=1
+	
+	#j'ai commenté dans le wpa_supplicant.conf les creds de connexion aux livebox ou à tout AP
 
 # /bin/wifi
 #(nb: loopback 'lo' pas indispensable)

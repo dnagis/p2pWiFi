@@ -2,11 +2,12 @@ P2P-wifi aka WiFi Direct
 
 
 
-### Connexion p2p depuis focus vers RPi4: configuration en cours
+### Connexion p2p depuis focus vers RPi4: configuration en cours (à maintenir +++)
 
 
-## Configuration sur le RPi4
-# wpa_supplicant.conf (nb: il y en a un seul pas deux: un wifi classique et un p2p) 
+## Côté RPi4
+
+# wpa_supplicant.conf 
 	ctrl_interface=/var/run/wpa_supplicant
 	device_name=RPi4
 	persistent_reconnect=1
@@ -18,19 +19,19 @@ P2P-wifi aka WiFi Direct
 	wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent freq=2
 	ifconfig p2p-wlan0-0 192.168.49.1
 	wpa_cli -i p2p-wlan0-0 wps_pbc
-	#udhcpd -S /etc/udhcpd.conf #ATTENTION INUTILE MAIS DANS LE SFS UNCOMMENTED: je pense que c'est pour Android que je l'ai laissé: car focus assigne l'IP en action script
+	#udhcpd -S /etc/udhcpd.conf #ATTENTION INUTILE MAIS DANS LE SFS UNCOMMENTED: je l'ai laissé pour Android: focus assigne l'IP du client en action script, Android demande une IP
 
 
 NB Sur RPi je n'ai pas d'action script sur p2p (contrairement à ce que j'ai en focus), mais j'en ai une sur wlan0 pour demander une IP
 
 
 
-## Configuration côté client (focus: NUC ou XPS13)
+## Côté client focus linux (NUC ou XPS13)
 nb: connexion doit avoir lieu < 120 s après démarrage du RPi = default timeout wps_pbc
 connexion via script par appel methode dbus
 
 # Configuration de l'IP
-l'IP de l'interface p2p-wlan0-N obtenue se fait par action_script:
+l'IP de l'interface p2p-wlan0-N obtenue est configurée par action_script:
 	rc.sysinit: wpa_cli -a /usr/share/wpa_action_scripts/wpa_action_p2p.sh -B #l'astuce en ne précisant pas -i p2p-dev-wlan0 c'est que p2p-dev-wlan0 est l'interface par défaut
 	wpa_action_p2p.sh (core.sfs): if [ "$2" = "P2P-GROUP-STARTED" ]; --> ifconfig $3(i.e. p2p-wlan0-N) 192.168.49.2 
 

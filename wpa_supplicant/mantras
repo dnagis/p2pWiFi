@@ -1,5 +1,6 @@
 ########Mantras P2P - wpa_supplicant
-##trouvailles "noteworthy"
+
+-wpa_supplicant.conf --> il n'y en a qu'un seul pas deux (j'ai cru au début qu'il y en avait un pour le wifi classique et un pour le p2p))
 
 -par défaut (sans -i) wpa_cli se branche à la première iface qu'il trouve dans /var/run/wpa_supplicant/
 

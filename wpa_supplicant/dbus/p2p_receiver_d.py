@@ -16,16 +16,31 @@ def sigint_handler(sig, frame):
     else:
         raise ValueError("Undefined handler for '{}'".format(sig))
 
-# Callbacks pour les Rx de Signals
+# Callbacks pour les Rx de signals
 def deviceFound(devicepath):
-	print("Device found: %s" % (devicepath))
+	peer = bus.get_object("fi.w1.wpa_supplicant1", devicepath)
+	peer_name = peer.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceName', dbus_interface=dbus.PROPERTIES_IFACE)
+	print("Device found: name = ", peer_name ," %s" % (devicepath))
 	
 def deviceLost(devicepath):
 	print("Device lost: %s" % (devicepath))
 
 #GONegotiationRequest ( o : path, q : dev_passwd_id, y : device_go_intent )	
+#Selon https://docs.gtk.org/glib/gvariant-format-strings.html 
+#	o --> object path
+#	q --> guint16
+#	y --> guchar
 def gonegrequest(devicepath, pwd, intent):
-	print("GO NEG REQUEST depuis: %s" % (devicepath))
+	peer = bus.get_object("fi.w1.wpa_supplicant1", devicepath)
+	peer_name = peer.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceName', dbus_interface=dbus.PROPERTIES_IFACE)
+	print("Device found: %s" % (devicepath), " name = ", peer_name)
+	print("GO NEG REQUEST depuis: ", peer_name, " %s" % (devicepath))
+	if peer_name == "XPS13" or peer_name == "NUC":
+		print("On lance connect sur ", peer_name)
+		#wpa_cli p2p_connect <BA_ADDR> pbc
+		#connect: https://w1.fi/wpa_supplicant/devel/dbus.html fi.w1.wpa_supplicant1.Interface.P2PDevice Methods
+		p2p_connect_arguments = dbus.Dictionary({'wps_method':'pbc','peer':peer})
+		p2p_interface.Connect(p2p_connect_arguments)
 
 
 if __name__ == '__main__':

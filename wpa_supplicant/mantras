@@ -4,6 +4,9 @@
 
 -par défaut (sans -i) wpa_cli se branche à la première iface qu'il trouve dans /var/run/wpa_supplicant/
 
+-piloter l'interface p2p dbus via du code et avoir wpa_cli ouvert sur une des interfaces réseaux p2p est parfaitement possible --> l'un et l'autre peuvent 
+	coexister
+
 -j'ai déjà perdu la possibilité de connexion XPS13 - RPi4 en ajoutant les fichiers /lib/firmware/regulatory.db[p7s] 
 	(symptome: P2P-GROUP-REMOVED client reason=idle au bout de qqes secondes et pas de reconnexion)
 	

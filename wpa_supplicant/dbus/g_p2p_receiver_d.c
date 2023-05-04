@@ -67,31 +67,58 @@ static void on_signal (GDBusProxy *proxy,
                        gpointer user_data) {
 	
 	GVariant *devInfoDict;
-	gchar *devName;
+	//gchar *devName;
+	GVariant *devName;
 	gchar *peer; //Attention je sais que tu auras envie de remplacer ça par GVariant * mais déjà essayé +++
+	GError *error = NULL;
+	GDBusProxy *peer_proxy = NULL;
 	
     g_print("on_signal() signal_name=%s\n", signal_name);
     
     //g_print ("g_variant_get_type_string sur le GVariant params: %s\n", g_variant_get_type_string(params));
     //g_print ("g_variant_print sur le GVariant params: %s\n", g_variant_print (params, TRUE)); 
     
-    if (g_strcmp0(signal_name, "GONegotiationRequest") == 0) {
+        /**if (g_strcmp0(signal_name, "GONegotiationRequest") == 0) {
         g_print ("g_variant_get_type_string sur le GVariant params: %s\n", g_variant_get_type_string(params)); //oqy
         g_print ("g_variant_print sur le GVariant params: %s\n", g_variant_print (params, TRUE));
         //(objectpath '/fi/w1/wpa_supplicant1/Interfaces/0/Peers/9cb6d0172c8f', uint16 4, byte 0x07)
-    }
-    
-    
-    
-    /**
-    if (g_strcmp0(signal_name, "DeviceFoundProperties") == 0) {
-        g_variant_get (params, "(o@a{sv})", &peer, &devInfoDict);
-        g_variant_lookup (devInfoDict, "DeviceName", "s", &devName);    
-		g_print ("on cherche %s, on vient de trouver: %s\n",dev_searched, devName); 
-		if (g_strcmp0(devName, dev_searched) == 0) {
-			connect(peer);
-			}
+        
+
+        
+        
     }*/ 
+    
+    
+    
+	
+    if (g_strcmp0(signal_name, "DeviceFoundProperties") == 0) {
+        g_variant_get (params, "(oa{sv})", &peer, NULL);  
+        g_print("DeviceFoundProperties o=%s\n", peer); // /fi/w1/wpa_supplicant1/Interfaces/0/Peers/e2bb9ed5bb53
+        
+        peer_proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+											G_DBUS_PROXY_FLAGS_NONE,
+											NULL, /* GDBusInterfaceInfo */
+											"fi.w1.wpa_supplicant1", //name,
+											peer, //object_path,
+											"fi.w1.wpa_supplicant1.Peer", //interface_name
+											NULL, /* GCancellable */
+											&error);
+											
+	if (error != NULL) g_print("Erreur g_dbus_proxy_new_for_bus_sync: %s\n", error->message);
+	
+	//Pas d'erreur, il semblerait que j'ai accès au peer		
+	
+	//https://stackoverflow.com/questions/47095118/c-gdbus-how-to-fetch-the-property-of-interface-using-gdbus-library									
+	
+	
+	//devName = g_dbus_proxy_get_cached_property(peer_proxy, "ZOB");
+	devName = g_dbus_proxy_get_cached_property(peer_proxy, "DeviceName");
+	
+	
+	g_print("devName: %s\n", &devName);
+        
+
+    }
 
 }
 

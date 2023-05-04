@@ -114,6 +114,8 @@ static void on_signal (GDBusProxy *proxy,
 	//devName = g_dbus_proxy_get_cached_property(peer_proxy, "ZOB");
 	devName = g_dbus_proxy_get_cached_property(peer_proxy, "DeviceName");
 	
+	g_print ("g_variant_get_type_string sur le GVariant devName: %s\n", g_variant_get_type_string(devName));
+	g_print ("g_variant_print sur le GVariant devName: %s\n", g_variant_print (devName, TRUE)); 
 	
 	g_print("devName: %s\n", &devName);
         

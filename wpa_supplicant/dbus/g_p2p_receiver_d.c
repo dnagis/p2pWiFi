@@ -67,8 +67,8 @@ static void on_signal (GDBusProxy *proxy,
                        gpointer user_data) {
 	
 	GVariant *devInfoDict;
-	//gchar *devName;
 	GVariant *devName;
+	gchar *devNameChar;
 	gchar *peer; //Attention je sais que tu auras envie de remplacer ça par GVariant * mais déjà essayé +++
 	GError *error = NULL;
 	GDBusProxy *peer_proxy = NULL;
@@ -78,15 +78,20 @@ static void on_signal (GDBusProxy *proxy,
     //g_print ("g_variant_get_type_string sur le GVariant params: %s\n", g_variant_get_type_string(params));
     //g_print ("g_variant_print sur le GVariant params: %s\n", g_variant_print (params, TRUE)); 
     
-        /**if (g_strcmp0(signal_name, "GONegotiationRequest") == 0) {
-        g_print ("g_variant_get_type_string sur le GVariant params: %s\n", g_variant_get_type_string(params)); //oqy
-        g_print ("g_variant_print sur le GVariant params: %s\n", g_variant_print (params, TRUE));
+        if (g_strcmp0(signal_name, "GONegotiationRequest") == 0) {
+        
+        g_print ("GONegotiationRequest g_variant_get_type_string sur le GVariant params: %s\n", g_variant_get_type_string(params)); //(oqy)
+        g_print ("GONegotiationRequest g_variant_print sur le GVariant params: %s\n", g_variant_print (params, TRUE));
         //(objectpath '/fi/w1/wpa_supplicant1/Interfaces/0/Peers/9cb6d0172c8f', uint16 4, byte 0x07)
         
+        g_variant_get (params, "(oqy)", &peer, NULL, NULL);  
+        
+        g_print("GONegotiationRequest o=%s\n", peer); // /fi/w1/wpa_supplicant1/Interfaces/0/Peers/e2bb9ed5bb53
 
+		//ToDo: récupérer DeviceName, conditionner dessus (NUC ou XPS13) et lancer connect()
         
         
-    }*/ 
+		} 
     
     
     
@@ -104,21 +109,18 @@ static void on_signal (GDBusProxy *proxy,
 											NULL, /* GCancellable */
 											&error);
 											
-	if (error != NULL) g_print("Erreur g_dbus_proxy_new_for_bus_sync: %s\n", error->message);
+		if (error != NULL) g_print("Erreur g_dbus_proxy_new_for_bus_sync: %s\n", error->message);
 	
-	//Pas d'erreur, il semblerait que j'ai accès au peer		
+		devName = g_dbus_proxy_get_cached_property(peer_proxy, "DeviceName");
 	
-	//https://stackoverflow.com/questions/47095118/c-gdbus-how-to-fetch-the-property-of-interface-using-gdbus-library									
+		g_print ("DeviceFoundProperties g_variant_get_type_string sur le GVariant devName: %s\n", g_variant_get_type_string(devName)); //s
+		g_print ("DeviceFoundProperties g_variant_print sur le GVariant devName: %s\n", g_variant_print (devName, TRUE)); 
 	
+		//Avec un GVariant je ne peux rien faire il me faut un gchar*
+		g_variant_get (devName, "s", &devNameChar);	
 	
-	//devName = g_dbus_proxy_get_cached_property(peer_proxy, "ZOB");
-	devName = g_dbus_proxy_get_cached_property(peer_proxy, "DeviceName");
-	
-	g_print ("g_variant_get_type_string sur le GVariant devName: %s\n", g_variant_get_type_string(devName));
-	g_print ("g_variant_print sur le GVariant devName: %s\n", g_variant_print (devName, TRUE)); 
-	
-	g_print("devName: %s\n", &devName);
-        
+		g_print("DeviceFoundProperties devName: %s\n", devNameChar);
+ 
 
     }
 

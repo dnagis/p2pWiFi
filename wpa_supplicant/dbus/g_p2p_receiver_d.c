@@ -1,8 +1,20 @@
 /**
- * Lance find sans timeout et ecoute signaux
+ * Lance find sans timeout
+ * ecoute signaux
+ * Qd Rx GONegotiationRequest (i.e. p2p_connect <ADDR> pbc)
+ * Regarde le DeviceName du peer qui a requesté et si matche avec XPS13 ou NUC --> connect
+ * 
  * 
  * 
  * gcc g_p2p_receiver_d.c -o g_p2p_receiver_d `pkg-config --cflags --libs glib-2.0 gio-2.0`
+ * 
+ * 
+ * export PATH=$PATH:/initrd/mnt/dev_save/rpi/cross/bin/
+ * export PKG_CONFIG_LIBDIR=/initrd/mnt/dev_save/rpi/cross/aarch64-linux-gnu/lib/pkgconfig
+ * export PKG_CONFIG_SYSROOT_DIR=/initrd/mnt/dev_save/rpi/cross/aarch64-linux-gnu
+ * aarch64-linux-gnu-gcc g_p2p_receiver_d.c -o g_p2p_receiver_d `pkg-config --cflags --libs glib-2.0 gio-2.0`
+ * 
+ * 
  *  
  */
 

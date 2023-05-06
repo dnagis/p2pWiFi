@@ -39,12 +39,11 @@ static void connect(gchar *peer) {
     g_variant_builder_init(&builder, G_VARIANT_TYPE_VARDICT);
 
     g_variant_builder_add(&builder, "{sv}", "wps_method", g_variant_new_string("pbc"));
-    g_variant_builder_add(&builder, "{sv}", "join", g_variant_new_boolean(TRUE));    
+    //g_variant_builder_add(&builder, "{sv}", "join", g_variant_new_boolean(TRUE));    
     g_variant_builder_add(&builder, "{sv}", "persistent", g_variant_new_boolean(TRUE));
     //Attention: j'ai déjà essayé de passer un GVariant* --> g_variant_builder_add() bloque sans erreur ni segfault!    
     g_variant_builder_add(&builder, "{sv}", "peer", g_variant_new_object_path(peer)); 
-
-    //g_variant_builder_add(&builder, "{sv}", "go_intent", g_variant_new_int32(7));
+    g_variant_builder_add(&builder, "{sv}", "go_intent", g_variant_new_int32(15));
 
 	g_dbus_proxy_call_sync (proxy,
 							"Connect",
@@ -54,7 +53,7 @@ static void connect(gchar *peer) {
 							NULL,
 							&error);
 							
-	if (error != NULL) g_print("Erreur g_dbus_proxy_call_sync pour Connect: %s\n", error->message);
+	if (error != NULL) g_print("Connect --> erreur g_dbus_proxy_call_sync(): %s\n", error->message);
 	
 }
 
@@ -78,27 +77,22 @@ static void on_signal (GDBusProxy *proxy,
     //g_print ("g_variant_get_type_string sur le GVariant params: %s\n", g_variant_get_type_string(params));
     //g_print ("g_variant_print sur le GVariant params: %s\n", g_variant_print (params, TRUE)); 
     
-        if (g_strcmp0(signal_name, "GONegotiationRequest") == 0) {
+	if (g_strcmp0(signal_name, "GONegotiationRequest") == 0) {
         
         g_print ("GONegotiationRequest g_variant_get_type_string sur le GVariant params: %s\n", g_variant_get_type_string(params)); //(oqy)
         g_print ("GONegotiationRequest g_variant_print sur le GVariant params: %s\n", g_variant_print (params, TRUE));
         //(objectpath '/fi/w1/wpa_supplicant1/Interfaces/0/Peers/9cb6d0172c8f', uint16 4, byte 0x07)
         
-        g_variant_get (params, "(oqy)", &peer, NULL, NULL);  
+        g_variant_get (params, "(oqy)", &peer, NULL, NULL); //i.e. récup du o les 2 autres vers NULL 
         
         g_print("GONegotiationRequest o=%s\n", peer); // /fi/w1/wpa_supplicant1/Interfaces/0/Peers/e2bb9ed5bb53
 
-		//ToDo: récupérer DeviceName, conditionner dessus (NUC ou XPS13) et lancer connect()
-        
-        
-		} 
-    
-    
-    
-	
-    if (g_strcmp0(signal_name, "DeviceFoundProperties") == 0) {
-        g_variant_get (params, "(oa{sv})", &peer, NULL);  
-        g_print("DeviceFoundProperties o=%s\n", peer); // /fi/w1/wpa_supplicant1/Interfaces/0/Peers/e2bb9ed5bb53
+		/**
+		 * Accéder au device name pour conditionner (je ne veux pas répondre à n'importe qui)
+		 * Vu que je n'ai que oqy je dois faire avec o (object path) pour accéder aux properties d'un peer
+		 * 
+		 * 
+		 * **/
         
         peer_proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
 											G_DBUS_PROXY_FLAGS_NONE,
@@ -109,19 +103,33 @@ static void on_signal (GDBusProxy *proxy,
 											NULL, /* GCancellable */
 											&error);
 											
-		if (error != NULL) g_print("Erreur g_dbus_proxy_new_for_bus_sync: %s\n", error->message);
+		if (error != NULL) g_print("GONegotiationRequest Erreur g_dbus_proxy_new_for_bus_sync: %s\n", error->message);
 	
 		devName = g_dbus_proxy_get_cached_property(peer_proxy, "DeviceName");
 	
-		g_print ("DeviceFoundProperties g_variant_get_type_string sur le GVariant devName: %s\n", g_variant_get_type_string(devName)); //s
-		g_print ("DeviceFoundProperties g_variant_print sur le GVariant devName: %s\n", g_variant_print (devName, TRUE)); 
+		g_print ("GONegotiationRequest g_variant_get_type_string sur le GVariant devName: %s\n", g_variant_get_type_string(devName)); //s
+		g_print ("GONegotiationRequest g_variant_print sur le GVariant devName: %s\n", g_variant_print (devName, TRUE)); 
 	
-		//Avec un GVariant je ne peux rien faire il me faut un gchar*
+		//Avec un GVariant* je ne peux rien faire il me faut un gchar*
 		g_variant_get (devName, "s", &devNameChar);	
 	
-		g_print("DeviceFoundProperties devName: %s\n", devNameChar);
+		g_print("GONegotiationRequest devName: %s\n", devNameChar);
+        
+        if (g_strcmp0(devNameChar, "XPS13") == 0 || g_strcmp0(devNameChar, "NUC") == 0 ) {
+			g_print("GONegotiationRequest device name est XPS13 ou NUC on lance connect\n");
+			connect(peer);
+			}
+        
  
-
+        
+		} 
+    
+    
+    
+	
+    if (g_strcmp0(signal_name, "DeviceFoundProperties") == 0) {
+        //g_variant_get (params, "(oa{sv})", &peer, NULL);  
+        //g_print("DeviceFoundProperties o=%s\n", peer); // /fi/w1/wpa_supplicant1/Interfaces/0/Peers/e2bb9ed5bb53
     }
 
 }

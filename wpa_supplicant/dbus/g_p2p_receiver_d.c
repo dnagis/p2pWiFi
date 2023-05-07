@@ -142,6 +142,15 @@ static void on_signal (GDBusProxy *proxy,
     if (g_strcmp0(signal_name, "DeviceFoundProperties") == 0) {
         //g_variant_get (params, "(oa{sv})", &peer, NULL);  
         //g_print("DeviceFoundProperties o=%s\n", peer); // /fi/w1/wpa_supplicant1/Interfaces/0/Peers/e2bb9ed5bb53
+        
+        //Afficher le DeviceName du peer trouvé
+        g_variant_get (params, "(o@a{sv})", NULL, &devInfoDict);
+        g_variant_lookup (devInfoDict, "DeviceName", "s", &devName);    
+		g_print ("DeviceFoundProperties on vient de trouver: %s\n", devName);
+        
+        
+        
+        
     }
 
 }

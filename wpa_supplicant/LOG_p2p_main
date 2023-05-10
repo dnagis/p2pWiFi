@@ -1,8 +1,17 @@
 P2P-wifi aka WiFi Direct
 
+###wpa_cli astuces pratiques
+-l'autocomplétion fonctionne pour les addresses MAC, une fois qu'un peer est dans la peer table, donc sur un RPi avec un clavier c'est simple de taper p2p_connect d6:c9:4b:81:c2:73 pbc freq=2412
+-avoir l'adresse MAC de la machine sur laquelle tu es: wpa_cli (default=p2p-dev-wlan0) > status
+
+#peers
+-tant qu'un peer n'est pas trouvé (et donc dans la peer table), i.e. s'affiche avec p2p_peers, je ne pense pas qu'il soit possible de faire quoi que ce soit avec
+-avoir des informations sur un peer: p2p_peer MACADDR
 
 
-### Connexion p2p depuis focus vers RPi4: configuration en cours (à maintenir +++)
+
+
+### Connexion p2p depuis focus vers RPi4: configuration avant début du travail avril 2023 (à maintenir +++)
 
 
 ## Côté RPi4
@@ -127,7 +136,11 @@ socat TCP-LISTEN:4696,fork -
 il faut refaire une acceptation wps_pbc pour chaque client (un wps_pbc=1 acceptation d'un seul
 client pendant le timeout (default 120s)).
 
+###Accepter une demande de connexion venant d'un de mes devices Android, linux en client
+p2p_listen
+p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0 	
 
+udhcpc -i p2p-wlan0-
 
 
 
@@ -146,14 +159,7 @@ echo nameserver 192.168.1.1 > /etc/resolv.conf #normalement, maintenant /usr/sha
 INCLUDES="-I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src -I/initrd/mnt/dev_save/packages/wpa_supplicant-2.9/src/utils"
 gcc libwpa_connect.c $INCLUDES -lwpa_client
 
-#accepter une demande de connexion venant d'un de mes devices Android, linux en client
-p2p_listen
-p2p_connect d6:c9:4b:81:c2:73 pbc go_intent=0 	#Moto Z3 play
-p2p_connect 1a:f0:e4:11:ef:ba pbc go_intent=0 	#Redmi note 4
-p2p_connect 7e:42:6e:7f:a3:da pbc go_intent=0 	#Poco M3
-p2p_connect e2:c3:77:fd:59:5c pbc go_intent=0 	#Galaxy Tab S5e
 
-udhcpc -i p2p-wlan0-
  
  
  

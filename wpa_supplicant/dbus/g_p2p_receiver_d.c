@@ -9,10 +9,10 @@
  * gcc g_p2p_receiver_d.c -o g_p2p_receiver_d `pkg-config --cflags --libs glib-2.0 gio-2.0`
  * 
  * 
- * export PATH=$PATH:/initrd/mnt/dev_save/rpi/cross/bin/
- * export PKG_CONFIG_LIBDIR=/initrd/mnt/dev_save/rpi/cross/aarch64-linux-gnu/lib/pkgconfig
- * export PKG_CONFIG_SYSROOT_DIR=/initrd/mnt/dev_save/rpi/cross/aarch64-linux-gnu
- * aarch64-linux-gnu-gcc g_p2p_receiver_d.c -o g_p2p_receiver_d `pkg-config --cflags --libs glib-2.0 gio-2.0`
+export PATH=$PATH:/initrd/mnt/dev_save/rpi/cross/bin/
+export PKG_CONFIG_LIBDIR=/initrd/mnt/dev_save/rpi/cross/aarch64-linux-gnu/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=/initrd/mnt/dev_save/rpi/cross/aarch64-linux-gnu
+aarch64-linux-gnu-gcc g_p2p_receiver_d.c -o g_p2p_receiver_d `pkg-config --cflags --libs glib-2.0 gio-2.0`
  * 
  * 
  *  
@@ -52,10 +52,11 @@ static void connect(gchar *peer) {
 
     g_variant_builder_add(&builder, "{sv}", "wps_method", g_variant_new_string("pbc"));
     //g_variant_builder_add(&builder, "{sv}", "join", g_variant_new_boolean(TRUE));    
-    g_variant_builder_add(&builder, "{sv}", "persistent", g_variant_new_boolean(TRUE));
+    //g_variant_builder_add(&builder, "{sv}", "persistent", g_variant_new_boolean(TRUE));
     //Attention: j'ai déjà essayé de passer un GVariant* --> g_variant_builder_add() bloque sans erreur ni segfault!    
     g_variant_builder_add(&builder, "{sv}", "peer", g_variant_new_object_path(peer)); 
-    g_variant_builder_add(&builder, "{sv}", "go_intent", g_variant_new_int32(15));
+    //g_variant_builder_add(&builder, "{sv}", "go_intent", g_variant_new_int32(15));
+    g_variant_builder_add(&builder, "{sv}", "frequency", g_variant_new_int32(2412));
 
 	g_dbus_proxy_call_sync (proxy,
 							"Connect",

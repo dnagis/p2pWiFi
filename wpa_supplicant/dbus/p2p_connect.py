@@ -33,12 +33,13 @@ def deviceFound(devicepath):
 		print("\033[1;32mDevice %s found on tente connection\033[0;39m" % dev_searched)
 		#wpa_cli p2p_connect <BA_ADDR> pbc join
 		#connect: https://w1.fi/wpa_supplicant/devel/dbus.html fi.w1.wpa_supplicant1.Interface.P2PDevice Methods
-		p2p_connect_arguments = dbus.Dictionary({'wps_method':'pbc','peer':peer_found,'join':True})
+		#p2p_connect_arguments = dbus.Dictionary({'wps_method':'pbc','peer':peer_found,'join':True})
+		p2p_connect_arguments = dbus.Dictionary({'wps_method':'pbc','peer':peer_found,'frequency':2412,'go_intent':0})
 		p2p_interface.Connect(p2p_connect_arguments)
 
 def groupStarted(properties):
-	print("\033[1;32msignal dbus GroupStarted, GoodBye...\033[0;39m")
-	loop.quit()
+	print("\033[1;32msignal dbus GroupStarted\033[0;39m")
+	#loop.quit()
 
 
 if __name__ == '__main__':
@@ -68,7 +69,8 @@ if __name__ == '__main__':
 	bus.add_signal_receiver(groupStarted,dbus_interface=wpas_dbus_interfaces_p2pdevice,signal_name="GroupStarted")
 	
 	#Jai mis 30 pendant longtemps, et j'attendais souvent plus que 30s. ***sigh*** Pourtant n'est pas mandatory
-	P2PFindDict = dbus.Dictionary({'Timeout':int(600)})
+	#P2PFindDict = dbus.Dictionary({'Timeout':int(600)})
+	P2PFindDict = dbus.Dictionary({})
 	p2p_interface.Find(P2PFindDict)
 	print("P2P Find lancé, on cherche: ", dev_searched)
 	

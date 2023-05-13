@@ -50,13 +50,13 @@ static void connect(gchar *peer) {
 	 * **/
     g_variant_builder_init(&builder, G_VARIANT_TYPE_VARDICT);
 
-    g_variant_builder_add(&builder, "{sv}", "wps_method", g_variant_new_string("pbc"));
+    //Attention: j'ai déjà essayé de passer un GVariant* --> g_variant_builder_add() bloque sans erreur ni segfault!     
+    g_variant_builder_add(&builder, "{sv}", "wps_method", g_variant_new_string("pbc"));   
+    g_variant_builder_add(&builder, "{sv}", "peer", g_variant_new_object_path(peer)); 
+    g_variant_builder_add(&builder, "{sv}", "frequency", g_variant_new_int32(2412));
+    g_variant_builder_add(&builder, "{sv}", "go_intent", g_variant_new_int32(0));
     //g_variant_builder_add(&builder, "{sv}", "join", g_variant_new_boolean(TRUE));    
     //g_variant_builder_add(&builder, "{sv}", "persistent", g_variant_new_boolean(TRUE));
-    //Attention: j'ai déjà essayé de passer un GVariant* --> g_variant_builder_add() bloque sans erreur ni segfault!    
-    g_variant_builder_add(&builder, "{sv}", "peer", g_variant_new_object_path(peer)); 
-    //g_variant_builder_add(&builder, "{sv}", "go_intent", g_variant_new_int32(15));
-    g_variant_builder_add(&builder, "{sv}", "frequency", g_variant_new_int32(2412));
 
 	g_dbus_proxy_call_sync (proxy,
 							"Connect",

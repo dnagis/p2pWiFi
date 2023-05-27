@@ -104,25 +104,19 @@ P2P-DEVICE-FOUND ba:27:eb:ab:77:a0 p2p_dev_addr=ba:27:eb:ab:f7:a0 pri_dev_type=0
 wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
 wpa_cli -i p2p-wlan0-0 wps_pbc
 ifconfig p2p-wlan0-0 192.168.49.1
-#Lancement du serveur dhcp busybox, cf préparation ci dessous
+
+#Lancement du serveur dhcp busybox (udhcpd, à faire une seule fois) recette préparation voir mtox/wifi à la section "dhcp server"
 udhcpd -S /etc/udhcpd.conf
 
 
 ###Android vers focus: préparation dhcp server et p2p
-
-#Préparer le serveur dhcp busybox=udhcpd (à faire une seule fois)
-copier busybox-1.31.1/examples/udhcp/udhcpd.conf dans /etc/ 
-Modifier udhcpd.conf --> #The start and end of the IP lease block: 
-	 \nstart		192.168.49.20\nend		192.168.49.254 #(les IP par défaut ne permettent pas fonctionnement, pas investigué plus...)
-mkdir -p /var/lib/misc/
-touch /var/lib/misc/udhcpd.leases
 
 #Créer une iface p2p et la configurer
 wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent
 #Attention pas sûr que ce soit instantané, vérifier apparition de l'interface avec ifconfig
 ifconfig `ls /sys/class/net/ | grep p2p` 192.168.49.1
 
-#Adapter udhcpd à l'interface de groupe p2p "p2p-wlan0-N" et lancer udhcpd
+#Adapter udhcpd.conf à l'interface de groupe p2p "p2p-wlan0-N" et lancer udhcpd
 sed -i "s/^interface.*$/interface `ls /sys/class/net/ | grep p2p`/g" /etc/udhcpd.conf
 udhcpd -f /etc/udhcpd.conf #-S: syslog, -f pour foreground (voir la connexion)
 

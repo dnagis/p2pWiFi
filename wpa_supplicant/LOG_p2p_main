@@ -1,18 +1,84 @@
 P2P-wifi aka WiFi Direct
 
-###wpa_cli astuces pratiques
--l'autocomplétion fonctionne pour les addresses MAC, une fois qu'un peer est dans la peer table, donc sur un RPi avec un clavier c'est simple de taper p2p_connect d6:c9:4b:81:c2:73 pbc freq=2412
--avoir l'adresse MAC de la machine sur laquelle tu es: wpa_cli (default=p2p-dev-wlan0) > status
+### Stratégie de connexion focus --> RPi4 utilisée depuis mai 2023
 
-#peers
--tant qu'un peer n'est pas trouvé (et donc dans la peer table), i.e. s'affiche avec p2p_peers, je ne pense pas qu'il soit possible de faire quoi que ce soit avec
--avoir des informations sur un peer: p2p_peer MACADDR
+## Côté RPi
+-Le RPi est GO d'un groupe persistent, défini dans le wpa_supplicant.conf, accessible par ssid et psk comme si c'était un AP classique
+-Son IP est assignée statiquement
+-Il sert des adresses IP aux clients qui se connectent (udhcpd)
+-Aucun action script n'est utilisé, donc aucune IP ne sera demandée à event=connexion (si par exple tu ajoutes un network block pour un autre AP)
+
+-Les 2 liens qui m'ont aidé pour trouver cette stratégie:
+https://raspberrypi.stackexchange.com/questions/117119/how-to-invoke-the-existing-persistent-p2p-go-on-restart-of-device-to-create-aut
+https://raspberrypi.stackexchange.com/questions/94667/p2p-group-add-setting-own-password-and-ssid
+
+# wpa_supplicant.conf 
+	
+	network={
+		ssid="DIRECT-RPi4"
+		bssid=e6:5f:01:24:7e:23
+		psk="la_meme_passphrase_que_AndroidAP_vince"
+		proto=RSN
+		key_mgmt=WPA-PSK
+		pairwise=CCMP
+		auth_alg=OPEN
+		mode=3
+		disabled=2
+	}
+	
+	Pour générer ce ***network block*** (nécessaire une seule fois), il faut démarrer wpa_supplicant avec update_config=1 (pas sûr que reconfigure suffise),
+	et faire:
+	wpa_cli -i p2p-dev-wlan0
+	> p2p_group_add persistent
+	> p2p_group_remove p2p-wlan0-0
+	> quit
+	normalement le block est apparu dans le wpa_supplicant.conf 
+	
+# /bin/wifi
+
+	modprobe brcmfmac	
+	ifconfig wlan0 up
+	wpa_supplicant -iwlan0 -c/etc/wpa_supplicant.conf -s -u -B 
+	
+	wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent=0 #NB le chiffre à persistent= est l'index du network block dans wpa_supplicant.conf
+	ifconfig p2p-wlan0-0 192.168.49.1
+	
+	udhcpd -S /etc/udhcpd.conf	#Serveur dhcp --> cf mtox/wifi pour la mise en place
+	
+	/sbin/sshd	
+	
 
 
 
 
-### Connexion p2p depuis focus vers RPi4: configuration avant début du travail avril 2023 (à maintenir +++)
 
+
+
+
+## Côté client linux
+-Ce qui n'est pas intuitif, c'est que côté client, tout se fait en wlan0:
+-Le Pi est vu par le client comme un AP classique, il suffit d'un network block dans le wpa_supplicant.conf:
+
+ network={
+	ssid="DIRECT-RPi4"
+	psk="la_meme_passphrase_que_AndroidAP_vince"
+}
+
+
+
+
+
+
+
+
+
+
+
+## Côté client focus linux (NUC ou XPS13)
+
+
+
+### Stratégie de connexion focus --> RPi4 utilisée avant avril 2023
 
 ## Côté RPi4
 
@@ -30,14 +96,14 @@ P2P-wifi aka WiFi Direct
 	wpa_cli -i p2p-wlan0-0 wps_pbc
 	#udhcpd -S /etc/udhcpd.conf #ATTENTION INUTILE MAIS DANS LE SFS UNCOMMENTED: je l'ai laissé pour Android: focus assigne l'IP du client en action script, Android demande une IP
 
-
 NB Sur RPi je n'ai pas d'action script sur p2p (contrairement à ce que j'ai en focus), mais j'en ai une sur wlan0 pour demander une IP
 
 
 
 ## Côté client focus linux (NUC ou XPS13)
+
 nb: connexion doit avoir lieu < 120 s après démarrage du RPi = default timeout wps_pbc
-connexion via script par appel methode dbus
+connexion via script par appel methode dbus (p2pWiFi/wpa_supplicant/dbus/p2p_connect.py RPi4)
 
 # Configuration de l'IP
 l'IP de l'interface p2p-wlan0-N obtenue est configurée par action_script:
@@ -51,6 +117,15 @@ l'IP de l'interface p2p-wlan0-N obtenue est configurée par action_script:
 
 
 
+
+###wpa_cli astuces pratiques
+
+-l'autocomplétion fonctionne pour les addresses MAC, une fois qu'un peer est dans la peer table, donc sur un RPi avec un clavier c'est simple de taper p2p_connect d6:c9:4b:81:c2:73 pbc freq=2412
+-avoir l'adresse MAC de la machine sur laquelle tu es: wpa_cli (default=p2p-dev-wlan0) > status
+
+#peers
+-tant qu'un peer n'est pas trouvé (et donc dans la peer table), i.e. s'affiche avec p2p_peers, je ne pense pas qu'il soit possible de faire quoi que ce soit avec
+-avoir des informations sur un peer: p2p_peer MACADDR
 
 
 

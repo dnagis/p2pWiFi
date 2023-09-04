@@ -35,13 +35,14 @@ def gonegrequest(devicepath, pwd, intent):
 	peer_name = peer.Get('fi.w1.wpa_supplicant1.Peer', 'DeviceName', dbus_interface=dbus.PROPERTIES_IFACE)
 	print("Device found: %s" % (devicepath), " name = ", peer_name)
 	print("GO NEG REQUEST depuis: ", peer_name, " %s" % (devicepath))
-	if peer_name == "XPS13" or peer_name == "NUC":
-		print("Le peer est XPS13 ou NUC, on lance connect sur ", peer_name)
-		#wpa_cli p2p_connect <BA_ADDR> pbc
-		#connect: https://w1.fi/wpa_supplicant/devel/dbus.html fi.w1.wpa_supplicant1.Interface.P2PDevice Methods
-		#entre XPS13 et NUC juste pour tester frequence j essaie 'frequency':2 j'ai resultat = fi.w1.wpa_supplicant1.ConnectChannelUnsupported: connect failed due to unsupported channel
-		p2p_connect_arguments = dbus.Dictionary({'wps_method':'pbc','peer':peer,'persistent':True,'go_intent':15})
-		p2p_interface.Connect(p2p_connect_arguments)
+	#if peer_name == "XPS13" or peer_name == "NUC":
+	#print("Le peer est XPS13 ou NUC, on lance connect sur ", peer_name)
+	#wpa_cli p2p_connect <BA_ADDR> pbc
+	#connect: https://w1.fi/wpa_supplicant/devel/dbus.html fi.w1.wpa_supplicant1.Interface.P2PDevice Methods
+	#entre XPS13 et NUC juste pour tester frequence j essaie 'frequency':2 j'ai resultat = fi.w1.wpa_supplicant1.ConnectChannelUnsupported: connect failed due to unsupported channel
+	print("Lancement connexion")
+	p2p_connect_arguments = dbus.Dictionary({'wps_method':'pbc','peer':peer,'persistent':True,'go_intent':0})
+	p2p_interface.Connect(p2p_connect_arguments)
 
 
 if __name__ == '__main__':

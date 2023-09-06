@@ -4,6 +4,9 @@
 
 -par défaut (sans -i) wpa_cli se branche à la première iface qu'il trouve dans /var/run/wpa_supplicant/
 
+-fréquence, legacy wifi et p2p: Les cartes réseaux des NUCs et des Android (au moins) peuvent faire du legacy (i.e. être connectés à un AP) en même temps que du p2p, MAIS seulement si 
+	les deux se font sur la même gamme de fréquence (je veux dire: impossible par exemple de faire legacy en 5, p2p en 2, par contre les deux en 2 possible)
+
 -piloter l'interface p2p dbus via du code et avoir wpa_cli ouvert sur une des interfaces réseaux p2p est parfaitement possible --> l'un et l'autre peuvent 
 	coexister
 

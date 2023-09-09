@@ -4,11 +4,12 @@
 
 -par défaut (sans -i) wpa_cli se branche à la première iface qu'il trouve dans /var/run/wpa_supplicant/
 
--fréquence, legacy wifi et p2p: Les cartes réseaux des NUCs et des Android (au moins) peuvent faire du legacy (i.e. être connectés à un AP) en même temps que du p2p, MAIS seulement si 
-	les deux se font sur la même gamme de fréquence (je veux dire: impossible par exemple de faire legacy en 5, p2p en 2, par contre les deux en 2 possible)
+-Legacy (i.e. connexion à un AP type livebox) et P2P peuvent coexister. Aucun doute là dessus.
 
--piloter l'interface p2p dbus via du code et avoir wpa_cli ouvert sur une des interfaces réseaux p2p est parfaitement possible --> l'un et l'autre peuvent 
-	coexister
+-fréquence: Les cartes réseaux des NUCs et des Android (au moins) ne peuvent faire du legacy en même temps que du p2p que si 
+	les deux se font sur la même gamme de fréquence (5GHz ou 2GHz)
+
+-piloter l'interface p2p dbus via du code et avoir wpa_cli ouvert sur une des interfaces réseaux p2p est parfaitement possible --> l'un et l'autre peuvent 	coexister
 
 -j'ai déjà perdu la possibilité de connexion XPS13 - RPi4 en ajoutant les fichiers /lib/firmware/regulatory.db[p7s] 
 	(symptome: P2P-GROUP-REMOVED client reason=idle au bout de qqes secondes et pas de reconnexion)

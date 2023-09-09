@@ -1,16 +1,19 @@
 P2P-wifi aka WiFi Direct
 
-### Stratégie de connexion focus --> RPi4 utilisée depuis mai 2023
 
-## Côté RPi
--Le RPi est GO d'un groupe persistent, défini dans le wpa_supplicant.conf, accessible par ssid et psk comme si c'était un AP classique
--Son IP est assignée statiquement
--Il sert des adresses IP aux clients qui se connectent (udhcpd)
--Aucun action script n'est utilisé, donc aucune IP ne sera demandée à event=connexion (si par exple tu ajoutes un network block pour un autre AP)
 
--Les 2 liens qui m'ont aidé pour trouver cette stratégie:
+
+### Stratégie pour la connexion linux --> linux (focus --> RPi4) utilisée depuis mai 2023
+
+-Les 2 posts qui m'ont aidé pour trouver cette stratégie:
 https://raspberrypi.stackexchange.com/questions/117119/how-to-invoke-the-existing-persistent-p2p-go-on-restart-of-device-to-create-aut
 https://raspberrypi.stackexchange.com/questions/94667/p2p-group-add-setting-own-password-and-ssid
+
+## Côté RPi
+-Le RPi est GO d'un groupe persistent, défini par un network block dans le wpa_supplicant.conf, accessible par ssid et psk comme si c'était un AP classique
+-Son IP est assignée statiquement
+-Il sert des adresses IP aux clients qui se connectent (busybox udhcpd:voir mtox/wifi pour le setup)
+-Aucun action script n'est utilisé, donc aucune IP ne sera demandée à event=connexion (si par exple tu ajoutes un network block pour un autre AP)
 
 # wpa_supplicant.conf 
 	
@@ -32,7 +35,9 @@ https://raspberrypi.stackexchange.com/questions/94667/p2p-group-add-setting-own-
 	> p2p_group_add persistent
 	> p2p_group_remove p2p-wlan0-0
 	> quit
-	normalement le block est apparu dans le wpa_supplicant.conf 
+	
+	normalement le block est apparu dans le wpa_supplicant.conf: le récupérer, éditer ssid et psk et il ira dans le wpa_supplicant.conf (pour qu'il puisse être utilisé 
+		pour la stratégie actuelle, je pense qu'il faut un redémarrage wpa_supplicant, un reconfigure à mon avis ne suffit pas)
 	
 # /bin/wifi
 
@@ -40,10 +45,10 @@ https://raspberrypi.stackexchange.com/questions/94667/p2p-group-add-setting-own-
 	ifconfig wlan0 up
 	wpa_supplicant -iwlan0 -c/etc/wpa_supplicant.conf -s -u -B 
 	
-	wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent=0 #NB le chiffre à persistent= est l'index du network block dans wpa_supplicant.conf
+	wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent=0 #NB le chiffre à persistent= est l'index du network block (cf ci dessus) dans wpa_supplicant.conf
 	ifconfig p2p-wlan0-0 192.168.49.1
 	
-	udhcpd -S /etc/udhcpd.conf	#Serveur dhcp --> cf mtox/wifi pour la mise en place
+	udhcpd -S /etc/udhcpd.conf	#Serveur dhcp busybox --> cf mtox/wifi pour setup
 	
 	/sbin/sshd	
 	
@@ -52,14 +57,12 @@ https://raspberrypi.stackexchange.com/questions/94667/p2p-group-add-setting-own-
 
 
 
+## Côté client type linux (focus: NUC ou XPS13)
 
+-Ce qui n'est pas intuitif, c'est que côté client, tout se fait en wlan0: Le Group Owner (Pi) est vu comme un AP classique, il suffit donc
+	'un network block de ce type dans le wpa_supplicant.conf côté client:
 
-
-## Côté client linux
--Ce qui n'est pas intuitif, c'est que côté client, tout se fait en wlan0:
--Le Pi est vu par le client comme un AP classique, il suffit d'un network block dans le wpa_supplicant.conf:
-
- network={
+network={
 	ssid="DIRECT-RPi4"
 	psk="la_meme_passphrase_que_AndroidAP_vince"
 }
@@ -67,48 +70,18 @@ https://raspberrypi.stackexchange.com/questions/94667/p2p-group-add-setting-own-
 
 
 
+## Côté client type Android
 
+Dans le menu Android WiFi classique: le ssid du GO apparait. Mais Android déconnecte automatiquement ce réseau car "no internet found"
 
+Solution: 
+-***sur le Pi*** autoriser une connexion au groupe en faisant wpa_cli -i p2p-wlan0-N wps_pin any 0000 (avantage: pas de timeout, et rien d'autre à faire), ou wps_pbc (il faut 
+faire set config_methods virtual_push_button, et il y a un timeout de 120s non modifiable)
+-Le Pi apparait alors dans le menu Android WiFi Direct (préférences réseaux). String qui apparait dans le menu: device_name set au début wpa_supplicant.conf.
+-Si ce n'est pas le cas: check fréquence 5GHz vs 2GHz, et sortir puis re-rentrer dans le menu WiFi Directcan help, connexion p2p (qui 
+peut coexister avec une connexion wifi legacy -à un AP internet bien sûr- moyennant que pas de conflit de fréquence -5GHz vs 2GHz-)
 
-
-
-
-
-## Côté client focus linux (NUC ou XPS13)
-
-
-
-### Stratégie de connexion focus --> RPi4 utilisée avant avril 2023
-
-## Côté RPi4
-
-# wpa_supplicant.conf 
-	ctrl_interface=/var/run/wpa_supplicant
-	device_name=RPi4
-	persistent_reconnect=1
-	
-	#j'ai commenté dans le wpa_supplicant.conf les creds de connexion aux livebox ou à tout AP
-
-# /bin/wifi
-#(nb: loopback 'lo' pas indispensable)
-	wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent freq=2
-	ifconfig p2p-wlan0-0 192.168.49.1
-	wpa_cli -i p2p-wlan0-0 wps_pbc
-	#udhcpd -S /etc/udhcpd.conf #ATTENTION INUTILE MAIS DANS LE SFS UNCOMMENTED: je l'ai laissé pour Android: focus assigne l'IP du client en action script, Android demande une IP
-
-NB Sur RPi je n'ai pas d'action script sur p2p (contrairement à ce que j'ai en focus), mais j'en ai une sur wlan0 pour demander une IP
-
-
-
-## Côté client focus linux (NUC ou XPS13)
-
-nb: connexion doit avoir lieu < 120 s après démarrage du RPi = default timeout wps_pbc
-connexion via script par appel methode dbus (p2pWiFi/wpa_supplicant/dbus/p2p_connect.py RPi4)
-
-# Configuration de l'IP
-l'IP de l'interface p2p-wlan0-N obtenue est configurée par action_script:
-	rc.sysinit: wpa_cli -a /usr/share/wpa_action_scripts/wpa_action_p2p.sh -B #l'astuce en ne précisant pas -i p2p-dev-wlan0 c'est que p2p-dev-wlan0 est l'interface par défaut
-	wpa_action_p2p.sh (core.sfs): if [ "$2" = "P2P-GROUP-STARTED" ]; --> ifconfig $3(i.e. p2p-wlan0-N) 192.168.49.2 
+Plusieurs clients peuvent être connectés simultanément (il faut donner une nouvelle autorisation wps_[pin/pbc] avant chaque nouvelle connexion)
 
 
 
@@ -118,7 +91,9 @@ l'IP de l'interface p2p-wlan0-N obtenue est configurée par action_script:
 
 
 
-###wpa_cli astuces pratiques
+
+
+### wpa_cli astuces pratiques
 
 -l'autocomplétion fonctionne pour les addresses MAC, une fois qu'un peer est dans la peer table, donc sur un RPi avec un clavier c'est simple de taper p2p_connect d6:c9:4b:81:c2:73 pbc freq=2412
 -avoir l'adresse MAC de la machine sur laquelle tu es: wpa_cli (default=p2p-dev-wlan0) > status
@@ -126,9 +101,6 @@ l'IP de l'interface p2p-wlan0-N obtenue est configurée par action_script:
 #peers
 -tant qu'un peer n'est pas trouvé (et donc dans la peer table), i.e. s'affiche avec p2p_peers, je ne pense pas qu'il soit possible de faire quoi que ce soit avec
 -avoir des informations sur un peer: p2p_peer MACADDR
-
-
-
 
 
 
@@ -154,6 +126,57 @@ l'IP de l'interface p2p-wlan0-N obtenue est configurée par action_script:
 ###Perte de connexion au bout de qqes secondes (P2P-GROUP-REMOVED p2p-wlan0-0 client reason=IDLE) cause régulatory
 	un mantra à ne pas oublier: la présence de fichiers /lib/firmware/regulatory* a rendu impossible la connexion XPS13 - RPi4, détails dans les fichiers:
 		p2pWiFi/wpa_supplicant/xps13_rpi4 et mtox/wifi (section channels/frequency)
+
+
+
+
+
+
+
+
+
+### Stratégie de connexion focus --> RPi4 utilisée avant avril 2023
+
+## Côté RPi4
+
+# wpa_supplicant.conf 
+	ctrl_interface=/var/run/wpa_supplicant
+	device_name=RPi4
+	persistent_reconnect=1
+	
+	#j'ai commenté dans le wpa_supplicant.conf les creds de connexion aux livebox ou à tout AP
+
+# /bin/wifi
+#(nb: loopback 'lo' pas indispensable)
+	wpa_cli -i p2p-dev-wlan0 p2p_group_add persistent freq=2
+	ifconfig p2p-wlan0-0 192.168.49.1
+	wpa_cli -i p2p-wlan0-0 wps_pbc #donc un seul client autorisé, pendant une fenêtre de 120s
+	#udhcpd -S /etc/udhcpd.conf #ATTENTION INUTILE MAIS DANS LE SFS UNCOMMENTED: je l'ai laissé pour Android: focus assigne l'IP du client en action script, Android demande une IP
+
+NB Sur RPi je n'ai pas d'action script sur p2p (contrairement à ce que j'ai en focus), mais j'en ai une sur wlan0 pour demander une IP
+
+
+
+## Côté client focus linux (NUC ou XPS13)
+
+nb: connexion doit avoir lieu < 120 s après démarrage du RPi = timeout wps_pbc
+connexion via script par appel methode dbus (p2pWiFi/wpa_supplicant/dbus/p2p_connect.py RPi4)
+qui fait p2p_find, et quand device found avec un device dont name string matche avec ce que je cherche, p2p_connect go_intent 0
+
+# Configuration de l'IP
+l'IP de l'interface p2p-wlan0-N obtenue est configurée par action_script:
+	rc.sysinit: wpa_cli -a /usr/share/wpa_action_scripts/wpa_action_p2p.sh -B #l'astuce en ne précisant pas -i p2p-dev-wlan0 c'est que p2p-dev-wlan0 est l'interface par défaut
+	wpa_action_p2p.sh (core.sfs): if [ "$2" = "P2P-GROUP-STARTED" ]; --> ifconfig $3(i.e. p2p-wlan0-N) 192.168.49.2 
+
+
+
+
+
+
+
+
+
+
 
 
 ###Connexion manuelle focus vers RPi: pour déterminer la bonne MACADDR: 
@@ -203,8 +226,7 @@ socat TCP-LISTEN:4696,fork -
 
 
 ###Plusieurs clients 
-il faut refaire une acceptation wps_pbc pour chaque client (un wps_pbc=1 acceptation d'un seul
-client pendant le timeout (default 120s)).
+il faut refaire une acceptation wps_pbc pour chaque client (un wps_pbc --> 1 acceptation d'un seul client pendant le timeout (default 120s)).
 
 ###Accepter une demande de connexion venant d'un de mes devices Android, linux en client
 p2p_listen

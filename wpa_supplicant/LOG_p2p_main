@@ -2,7 +2,6 @@ P2P-wifi aka WiFi Direct
 
 
 
-
 ### Stratégie pour la connexion linux --> linux (focus --> RPi4) utilisée depuis mai 2023
 
 -Les 2 posts qui m'ont aidé pour trouver cette stratégie:
@@ -73,16 +72,18 @@ network={
 ## Côté client type Android
 
 Dans le menu Android WiFi classique: le ssid du GO apparait. Mais Android déconnecte automatiquement ce réseau car "no internet found"
-
 Solution: 
--***sur le Pi*** autoriser une connexion au groupe en faisant wpa_cli -i p2p-wlan0-N wps_pin any 0000 (avantage: pas de timeout, et rien d'autre à faire), ou wps_pbc (il faut 
-faire set config_methods virtual_push_button, et il y a un timeout de 120s non modifiable)
--Le Pi apparait alors dans le menu Android WiFi Direct (préférences réseaux). String qui apparait dans le menu: device_name set au début wpa_supplicant.conf.
--Si ce n'est pas le cas: check fréquence 5GHz vs 2GHz, et sortir puis re-rentrer dans le menu WiFi Directcan help, connexion p2p (qui 
+menu Android WiFi Direct (préférences réseaux) regoint un groupe existant sur lequel une autorisation via pin a été donnée
+
+détail: 
+-***Côté linux*** autoriser une connexion à un groupe existant en faisant wpa_cli -i p2p-wlan0-N wps_pin any 0000 (avantage: pas de timeout, et rien d'autre à faire)
+	, ou wps_pbc (il faut faire set config_methods virtual_push_button, et il y a un timeout de 120s non modifiable)
+-Le linux device apparait alors dans le menu Android WiFi Direct (préférences réseaux). String qui apparait dans le menu: device_name set au début wpa_supplicant.conf.
+-Si ce n'est pas le cas: penser à la fréquence 5GHz vs 2GHz (un p2p_group_add persistent freq=2) puis côté Android sortir puis re-rentrer dans le menu WiFi Direct can help, connexion p2p (qui 
 peut coexister avec une connexion wifi legacy -à un AP internet bien sûr- moyennant que pas de conflit de fréquence -5GHz vs 2GHz-)
 
 Plusieurs clients peuvent être connectés simultanément (il faut donner une nouvelle autorisation wps_[pin/pbc] avant chaque nouvelle connexion)
-
+Avec le Pi, même après reboot, il n'est pas nécessaire d'autoriser.
 
 
 
